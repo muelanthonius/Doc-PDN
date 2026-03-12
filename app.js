@@ -28,6 +28,27 @@ function terbilang(n) {
 
 function formatJumlah(n) { return `${n} (${terbilang(n)})`; }
 
+// ── Pelaksana dropdown ────────────────────────────────────────
+function handlePelaksanaSelect(selectId, manualId) {
+  const sel    = document.getElementById(selectId);
+  const manual = document.getElementById(manualId);
+  if (sel.value === '__manual__') {
+    manual.style.display = 'block';
+    manual.focus();
+  } else {
+    manual.style.display = 'none';
+    manual.value = '';
+  }
+}
+
+function getPelaksanaNama(selectId, manualId) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return '';
+  return sel.value === '__manual__'
+    ? (document.getElementById(manualId).value.trim())
+    : sel.value;
+}
+
 /**
  * Clone <template>, isi data-field & data-slot, kembalikan elemen.
  */
@@ -276,8 +297,8 @@ function getFormData() {
     ukp:               isAan ? getUKP() : [],
     ukpng_deputi_jabatan: isAan && document.getElementById('ukpng_deputi_jabatan') ? document.getElementById('ukpng_deputi_jabatan').value.trim() : 'Deputi Bidang Pengadaan',
     ukpng_deputi_nama:    isAan && document.getElementById('ukpng_deputi_nama') ? document.getElementById('ukpng_deputi_nama').value.trim() : '',
-    aan_pelaksana_nama:   isAan && document.getElementById('aan_pelaksana_nama') ? document.getElementById('aan_pelaksana_nama').value.trim() : '',
-    pelaksana_nama:    document.getElementById('pelaksana_nama').value.trim(),
+    aan_pelaksana_nama:   isAan ? getPelaksanaNama('aan_pelaksana_select','aan_pelaksana_manual') : '',
+    pelaksana_nama:    getPelaksanaNama('pelaksana_nama_select','pelaksana_nama_manual') || getPelaksanaNama('aan_pelaksana_select','aan_pelaksana_manual'),
     pelaksana_jabatan: document.getElementById('pelaksana_jabatan').value.trim(),
   };
 }

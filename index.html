@@ -300,8 +300,10 @@
           <select id="metode_pengadaan">
             <option value="">-- Pilih Metode --</option>
             <option value="Penunjukan Langsung">Penunjukan Langsung</option>
-            <option value="Tender/Seleksi Terbatas">Tender/Seleksi Terbatas</option>
-            <option value="Tender/Seleksi">Tender/Seleksi</option>
+            <option value="Tender Terbatas">Tender Terbatas</option>
+            <option value="Seleksi Terbatas">Seleksi Terbatas</option>
+            <option value="Tender">Tender</option>
+            <option value="Seleksi">Seleksi</option>
           </select>
         </div>
       </div>
@@ -408,7 +410,20 @@
           <div class="ttd-box-body">
             <div class="field" style="margin-bottom:8px;">
               <label>Nama Pelaksana Pengadaan</label>
-              <input type="text" id="pelaksana_nama" placeholder="Nama pelaksana pengadaan">
+              <select id="pelaksana_nama_select" onchange="handlePelaksanaSelect('pelaksana_nama_select','pelaksana_nama_manual')">
+            <option value="">-- Pilih Nama --</option>
+            <option value="Aidil Saputra">Aidil Saputra</option>
+            <option value="Arief Noormansyah">Arief Noormansyah</option>
+            <option value="Dwi Emanto Rahman Hajianto">Dwi Emanto Rahman Hajianto</option>
+            <option value="Nanda Pratama Krisharyono">Nanda Pratama Krisharyono</option>
+            <option value="Ninggar Hesti Pratiwi">Ninggar Hesti Pratiwi</option>
+            <option value="Rahmadhona Dwi Siska">Rahmadhona Dwi Siska</option>
+            <option value="Samuel Anthonius Maduwu">Samuel Anthonius Maduwu</option>
+            <option value="Setyo Hardiyanto">Setyo Hardiyanto</option>
+            <option value="__manual__">Lainnya...</option>
+              </select>
+              <input type="text" id="pelaksana_nama_manual" placeholder="Tulis nama..." style="margin-top:8px;display:none;">
+              <input type="hidden" id="pelaksana_nama">
             </div>
             <input type="hidden" id="pelaksana_jabatan" value="Penata Pelaksana Pengadaan">
           </div>
@@ -450,7 +465,20 @@
       </div>
       <div class="field">
         <label>Nama Pelaksana Pengadaan</label>
-        <input type="text" id="aan_pelaksana_nama" placeholder="Nama pelaksana pengadaan">
+        <select id="aan_pelaksana_select" onchange="handlePelaksanaSelect('aan_pelaksana_select','aan_pelaksana_manual')">
+            <option value="">-- Pilih Nama --</option>
+            <option value="Aidil Saputra">Aidil Saputra</option>
+            <option value="Arief Noormansyah">Arief Noormansyah</option>
+            <option value="Dwi Emanto Rahman Hajianto">Dwi Emanto Rahman Hajianto</option>
+            <option value="Nanda Pratama Krisharyono">Nanda Pratama Krisharyono</option>
+            <option value="Ninggar Hesti Pratiwi">Ninggar Hesti Pratiwi</option>
+            <option value="Rahmadhona Dwi Siska">Rahmadhona Dwi Siska</option>
+            <option value="Samuel Anthonius Maduwu">Samuel Anthonius Maduwu</option>
+            <option value="Setyo Hardiyanto">Setyo Hardiyanto</option>
+            <option value="__manual__">Lainnya...</option>
+        </select>
+        <input type="text" id="aan_pelaksana_manual" placeholder="Tulis nama..." style="margin-top:8px;display:none;">
+        <input type="hidden" id="aan_pelaksana_nama">
       </div>
       <input type="hidden" id="pelaksana_nama" value="">
       <input type="hidden" id="pelaksana_jabatan" value="Penata Pelaksana Pengadaan">
