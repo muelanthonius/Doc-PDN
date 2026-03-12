@@ -305,15 +305,11 @@
           </select>
         </div>
       </div>
-      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+      <div class="form-row">
         <input type="hidden" id="hari">
         <div class="field">
-          <label>Tanggal</label>
-          <input type="date" id="tanggal">
-        </div>
-        <div class="field">
-          <label>Jam (HH:MM)</label>
-          <input type="time" id="jam">
+          <label>Tanggal &amp; Jam</label>
+          <input type="datetime-local" id="tanggal_jam">
         </div>
         <div class="field">
           <label>Lokasi</label>
@@ -348,18 +344,18 @@
     <div class="section-body">
       <div class="form-row">
         <div class="field">
-          <label>Tanggal Mulai Pemasukan Penawaran</label>
-          <input type="date" id="jadwal_mulai">
+          <label>Mulai Pemasukan Penawaran</label>
+          <input type="datetime-local" id="jadwal_mulai">
         </div>
         <div class="field">
-          <label>Tanggal Akhir Pemasukan Penawaran</label>
-          <input type="date" id="jadwal_akhir">
+          <label>Akhir Pemasukan Penawaran</label>
+          <input type="datetime-local" id="jadwal_akhir">
         </div>
       </div>
       <div class="form-row">
         <div class="field">
-          <label>Tanggal Pembukaan Dokumen Penawaran</label>
-          <input type="date" id="jadwal_pembukaan">
+          <label>Pembukaan Dokumen Penawaran</label>
+          <input type="datetime-local" id="jadwal_pembukaan">
         </div>
         <div class="field">
           <label>Lokasi Pembukaan Dokumen Penawaran</label>
@@ -434,12 +430,12 @@
         <div class="ukp-item">
           <div class="form-row">
             <div class="field">
-              <label>Jabatan Unit Kerja Pengguna</label>
-              <input type="text" class="ukp-jabatan" placeholder="Jabatan">
-            </div>
-            <div class="field">
               <label>Nama</label>
               <input type="text" class="ukp-nama" placeholder="Nama">
+            </div>
+            <div class="field">
+              <label>Jabatan</label>
+              <input type="text" class="ukp-jabatan" placeholder="Jabatan">
             </div>
           </div>
         </div>

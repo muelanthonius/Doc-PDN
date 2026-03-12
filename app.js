@@ -53,11 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === document.getElementById('modal')) closeModal();
   });
 
-  // Isi hari otomatis dari tanggal
-  document.getElementById('tanggal').addEventListener('change', function () {
+  // Isi hari otomatis dari tanggal_jam (datetime-local)
+  document.getElementById('tanggal_jam').addEventListener('change', function () {
     const hariList = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
     if (this.value) {
-      const d = new Date(this.value + 'T00:00:00');
+      const d = new Date(this.value);
       document.getElementById('hari').value = hariList[d.getDay()];
     } else {
       document.getElementById('hari').value = '';
@@ -94,8 +94,8 @@ function switchType(val) {
   document.getElementById('section-perubahan').classList.toggle('hidden', !aan);
   document.getElementById('section-ttd-pembukaan').classList.toggle('hidden', aan);
   document.getElementById('section-ttd-aanwijzing').classList.toggle('hidden', !aan);
-  if (aan && qaCount === 0) addQA();
-  if (aan && ukpCount === 0) addUKP();
+  // Q&A tidak auto-generate, user klik + sendiri
+  // UKP default 1 item sudah ada di HTML
 }
 
 // ── Peserta ───────────────────────────────────────────────────
@@ -123,8 +123,7 @@ function getPeserta() {
 // Q1 (baris 1), A1 (baris 2), Q2 (baris 3), A2 (baris 4), dst.
 function addQA() {
   const list = document.getElementById('qa-list');
-  // Hanya ada 1 textarea besar, hapus tombol tidak diperlukan
-  if (list.querySelector('.qa-textarea')) return; // sudah ada
+  if (list.querySelector('.qa-textarea')) return; // hanya 1 textarea
   const div = document.createElement('div');
   div.className = 'qa-item';
   div.innerHTML = `
@@ -196,10 +195,10 @@ function addUKP() {
   div.innerHTML = `
     <button class="btn-icon-remove" onclick="document.getElementById('ukp-${id}').remove()" title="Hapus">&#215;</button>
     <div class="form-row">
-      <div class="field"><label>Jabatan Unit Kerja Pengguna</label>
-        <input type="text" class="ukp-jabatan" placeholder="Jabatan"></div>
       <div class="field"><label>Nama</label>
         <input type="text" class="ukp-nama" placeholder="Nama"></div>
+      <div class="field"><label>Jabatan</label>
+        <input type="text" class="ukp-jabatan" placeholder="Jabatan"></div>
     </div>`;
   document.getElementById('ukp-list').appendChild(div);
 }
@@ -213,28 +212,41 @@ function getUKP() {
 
 // ── Form Data ─────────────────────────────────────────────────
 function getFormData() {
-  const tv = document.getElementById('tanggal').value;
-  const tanggal = tv
-    ? new Date(tv+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})
+  const dtv = document.getElementById('tanggal_jam').value;
+  const dtObj = dtv ? new Date(dtv) : null;
+  const tanggal = dtObj
+    ? dtObj.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})
     : '';
   // Format MMYYYY dari tanggal
-  const mmyyyy = tv
-    ? (() => { const d = new Date(tv+'T00:00:00');
-               const mm = String(d.getMonth()+1).padStart(2,'0');
-               const yyyy = d.getFullYear();
+  const mmyyyy = dtObj
+    ? (() => { const mm = String(dtObj.getMonth()+1).padStart(2,'0');
+               const yyyy = dtObj.getFullYear();
                return mm+yyyy; })()
     : '';
-  const jv           = document.getElementById('jam').value;
+  const jv = dtObj
+    ? String(dtObj.getHours()).padStart(2,'0') + ':' + String(dtObj.getMinutes()).padStart(2,'0')
+    : '';
   const nomorUrut    = document.getElementById('nomor_urut').value;
   const nomorPengadaan = document.getElementById('nomor_pengadaan').value.trim();
   // Format: BA-01/nomor_pengadaan/MMYYYY
   const nomorFull    = ['BA-' + nomorUrut, nomorPengadaan, mmyyyy].filter(Boolean).join('/');
 
-  // Helper format tanggal
+  // Helper format tanggal dari datetime-local
   function fmtTgl(id) {
     const v = document.getElementById(id) ? document.getElementById(id).value : '';
     if (!v) return '-';
-    return new Date(v+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    const d = new Date(v);
+    return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  }
+
+  // Helper format jam dari datetime-local
+  function fmtJam(id) {
+    const v = document.getElementById(id) ? document.getElementById(id).value : '';
+    if (!v) return '';
+    const d = new Date(v);
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    return hh + ':' + mm + ' WIB';
   }
 
   const isAan = currentType === 'aanwijzing';
@@ -252,10 +264,13 @@ function getFormData() {
     peserta:           getPeserta(),
     qa:                getQA(),
     perubahan:         getPerubahan(),
-    // Jadwal aanwijzing
-    jadwal_mulai:      fmtTgl('jadwal_mulai'),
-    jadwal_akhir:      fmtTgl('jadwal_akhir'),
-    jadwal_pembukaan:  fmtTgl('jadwal_pembukaan'),
+    // Jadwal aanwijzing (datetime-local: tanggal + jam sekaligus)
+    jadwal_mulai:         fmtTgl('jadwal_mulai'),
+    jadwal_mulai_jam:     fmtJam('jadwal_mulai'),
+    jadwal_akhir:         fmtTgl('jadwal_akhir'),
+    jadwal_akhir_jam:     fmtJam('jadwal_akhir'),
+    jadwal_pembukaan:     fmtTgl('jadwal_pembukaan'),
+    jadwal_pembukaan_jam: fmtJam('jadwal_pembukaan'),
     jadwal_lokasi_pembukaan: document.getElementById('jadwal_lokasi_pembukaan') ? document.getElementById('jadwal_lokasi_pembukaan').value.trim() : '',
     // TTD
     ukp:               isAan ? getUKP() : [],
@@ -290,7 +305,7 @@ function buildPreviewDOM(data) {
   if (!isAan) {
     return cloneTemplate('tmpl-pembukaan', {
       nama_pekerjaan:    data.nama_pekerjaan   || '...',
-      nomor_pengadaan:   data.nomor_pengadaan  || '-',
+      nomor_pengadaan:   data.nomor_pengadaan  || '...',
       hari:              data.hari             || '...',
       tanggal:           data.tanggal          || '...',
       jam:               data.jam,
@@ -298,7 +313,7 @@ function buildPreviewDOM(data) {
       metode:            data.metode           || '...',
       jumlah_peserta:    formatJumlah(data.peserta.length),
       pelaksana_nama:    data.pelaksana_nama   || '...',
-      pelaksana_jabatan: data.pelaksana_jabatan || '',
+      pelaksana_jabatan: data.pelaksana_jabatan || '...',
     }, { peserta: pesertaNodes });
   }
 
@@ -512,8 +527,8 @@ function generatePDF() {
     // Header
     content.push(
       { text: 'BERITA ACARA AANWIJZING', style: 'judul' },
-      { text: data.nama_pekerjaan || '', style: 'subjudul' },
-      { text: `Nomor: ${data.nomor_pengadaan || ''}`, style: 'nomor' },
+      { text: data.nama_pekerjaan || '...', style: 'subjudul' },
+      { text: `Nomor: ${data.nomor_pengadaan || '...'}`, style: 'nomor' },
     );
 
     // Paragraf 1
@@ -526,9 +541,9 @@ function generatePDF() {
     // Paragraf 2 — menggantikan tabel info
     content.push(para([
       'Bidang Pelaksanaan Pengadaan BPJS Ketenagakerjaan telah mengadakan kegiatan penjelasan pekerjaan (Aanwijzing) pekerjaan ',
-      bold(data.nama_pekerjaan||'-'),
+      bold(data.nama_pekerjaan||'...'),
       ' yang diproses dengan metode ',
-      bold(data.metode||'-'), '.'
+      bold(data.metode||'...'), '.'
     ]));
 
     // ── 1. Peserta ──
@@ -552,6 +567,7 @@ function generatePDF() {
     content.push(listItem('2.1.', 'Jadwal pelaksanaan pengadaan:', 20, 30));
 
     // Tabel jadwal
+    const fmtJadwal = (tgl, jam) => [tgl||'-', jam ? ', ' + jam : ''].join('');
     content.push({
       table: {
         headerRows: 1,
@@ -562,10 +578,12 @@ function generatePDF() {
             { text: 'Uraian',  bold:true, alignment:C, fillColor:'#e8e8e8' },
             { text: 'Jadwal',  bold:true, alignment:C, fillColor:'#e8e8e8' },
           ],
-          [{ text:'1', alignment:C }, { text:'Tanggal Mulai Pemasukan Penawaran', alignment:J }, { text: data.jadwal_mulai||'-', alignment:J }],
-          [{ text:'2', alignment:C }, { text:'Tanggal Akhir Pemasukan Penawaran', alignment:J }, { text: data.jadwal_akhir||'-', alignment:J }],
+          [{ text:'1', alignment:C }, { text:'Tanggal Mulai Pemasukan Penawaran', alignment:J },
+           { text: fmtJadwal(data.jadwal_mulai, data.jadwal_mulai_jam), alignment:J }],
+          [{ text:'2', alignment:C }, { text:'Tanggal Akhir Pemasukan Penawaran', alignment:J },
+           { text: fmtJadwal(data.jadwal_akhir, data.jadwal_akhir_jam), alignment:J }],
           [{ text:'3', alignment:C }, { text:'Tanggal dan Lokasi Pembukaan Dokumen Penawaran', alignment:J },
-           { text: (data.jadwal_pembukaan||'-') + (data.jadwal_lokasi_pembukaan ? ', ' + data.jadwal_lokasi_pembukaan : ''), alignment:J }],
+           { text: fmtJadwal(data.jadwal_pembukaan, data.jadwal_pembukaan_jam) + (data.jadwal_lokasi_pembukaan ? ', ' + data.jadwal_lokasi_pembukaan : ''), alignment:J }],
         ]
       },
       fontSize: f,
@@ -577,7 +595,7 @@ function generatePDF() {
     // ── 2.2. Pertanyaan dan Jawaban ──
     content.push(listItem('2.2.', 'Pertanyaan dan Jawaban:', 20, 30));
     if (data.qa.length === 0) {
-      content.push({ text: '-', fontSize: f, margin:[40,0,0,8] });
+      content.push({ text: 'Tidak ada pertanyaan dan jawaban.', fontSize: f, margin:[40,0,0,8] });
     } else {
       content.push({
         table: {
@@ -606,7 +624,7 @@ function generatePDF() {
     // ── 2.3. Perubahan Dokumen RKS ──
     content.push(listItem('2.3.', 'Perubahan Dokumen RKS:', 20, 30));
     if (data.perubahan.length === 0) {
-      content.push({ text: '-', fontSize: f, margin:[40,0,0,8] });
+      content.push({ text: 'Tidak ada perubahan dokumen RKS.', fontSize: f, margin:[40,0,0,8] });
     } else {
       // Setiap perubahan = 4 baris: Sebelum, Sesudah, Diusulkan Oleh, Pertimbangan
       const perubahanRows = [
@@ -635,11 +653,11 @@ function generatePDF() {
       content.push({
         table: {
           headerRows: 1,
-          widths: [20, 120, '*'],
+          widths: [20, 80, '*'],
           body: perubahanRows,
         },
         fontSize: f,
-        margin: [40, 4, 0, 8],
+        margin: [40, 4, 40, 8],
       });
     }
 
@@ -659,7 +677,7 @@ function generatePDF() {
       stack: [
         para(
           'Demikian Berita Acara ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.',
-          { margin: [0, 12, 0, 0] }
+          { margin: [0, 12, 40, 0] }
         ),
         {
           columns: [
@@ -691,31 +709,22 @@ function generatePDF() {
             // ── Kiri: UKP ──
             {
               stack: [
-                { text: 'Unit Kerja Pengguna,', bold: true, alignment: C, fontSize: f },
                 ...(data.ukp.length === 0 ? [
-                  { text: '', margin: [0, 60, 0, 0] },
-                  { text: '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
-                  { text: '...', alignment: C, fontSize: f },
-                ] : data.ukp.map((u, i) => ({
-                  stack: [
-                    { text: u.jabatan || '', alignment: C, fontSize: f, margin:[0, i===0?8:16, 0, 0] },
-                    { text: '', margin: [0, 50, 0, 0] },
-                    { text: u.nama || '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
-                  ]
-                })))
+                  ttdBlock('Unit Kerja Pengguna,', '...', '...')
+                ] : data.ukp.map((u, i) => (
+                  ttdBlock(
+                    i === 0 ? 'Unit Kerja Pengguna,' : '',
+                    u.nama    || '...',
+                    u.jabatan || ''
+                  )
+                )))
               ]
             },
             // ── Kanan: UKPng ──
             {
               stack: [
-                { text: 'Unit Kerja Pengadaan,', bold: true, alignment: C, fontSize: f },
-                { text: 'Asdep Pelaksanaan Pengadaan,', alignment: C, fontSize: f, margin:[0,8,0,0] },
-                { text: '', margin: [0, 45, 0, 0] },
-                { text: 'Jessica Puspadayasari', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
-                { text: '', margin: [0, 20, 0, 0] },
-                { text: 'Penata Pelaksana Pengadaan,', alignment: C, fontSize: f, margin:[0,8,0,0] },
-                { text: '', margin: [0, 45, 0, 0] },
-                { text: data.aan_pelaksana_nama || '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                ttdBlock('Unit Kerja Pengadaan,', 'Jessica Puspadayasari', 'Asdep Pelaksanaan Pengadaan'),
+                ttdBlock('', data.aan_pelaksana_nama || '...', 'Penata Pelaksana Pengadaan'),
               ]
             }
           ],
