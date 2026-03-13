@@ -253,6 +253,14 @@
           <input type="radio" name="jenis" value="aanwijzing" checked onchange="switchType(this.value)">
           <div class="label">Tipe 01</div>
           <div class="title">Berita Acara Aanwijzing</div>
+          <div class="aan-subtipe-wrap hidden" id="aan-subtipe-wrap">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);cursor:pointer;">
+              <input type="checkbox" id="chk-klarifikasi" onchange="handleSubtipe('klarifikasi')"> Klarifikasi/Lanjutan
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-family:var(--mono);cursor:pointer;">
+              <input type="checkbox" id="chk-lapangan" onchange="handleSubtipe('lapangan')"> Lapangan
+            </label>
+          </div>
         </label>
         <label class="type-card" id="card-pembukaan">
           <input type="radio" name="jenis" value="pembukaan" onchange="switchType(this.value)">

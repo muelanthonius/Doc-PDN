@@ -504,3 +504,12 @@ select {
   cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s;
 }
 .btn-checklist:hover { background: var(--accent-light); }
+
+/* ── Aanwijzing subtipe checkboxes ── */
+.aan-subtipe-wrap {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.aan-subtipe-wrap.hidden { display: none !important; }

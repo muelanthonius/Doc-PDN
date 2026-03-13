@@ -28,6 +28,19 @@ function terbilang(n) {
 
 function formatJumlah(n) { return `${n} (${terbilang(n)})`; }
 
+// ── Aanwijzing subtipe ───────────────────────────────────────
+function handleSubtipe(val) {
+  // hanya satu yang bisa aktif
+  if (val === 'klarifikasi') document.getElementById('chk-lapangan').checked = false;
+  if (val === 'lapangan')    document.getElementById('chk-klarifikasi').checked = false;
+}
+
+function getSubtipe() {
+  if (document.getElementById('chk-klarifikasi') && document.getElementById('chk-klarifikasi').checked) return 'KLARIFIKASI/LANJUTAN';
+  if (document.getElementById('chk-lapangan')    && document.getElementById('chk-lapangan').checked)    return 'LAPANGAN';
+  return '';
+}
+
 // ── Pelaksana dropdown ────────────────────────────────────────
 function handlePelaksanaSelect(selectId, manualId) {
   const sel    = document.getElementById(selectId);
@@ -129,6 +142,13 @@ function switchType(val) {
   document.getElementById('section-ttd-pembukaan').classList.toggle('hidden', aan);
   document.getElementById('section-ttd-aanwijzing').classList.toggle('hidden', !aan);
   document.getElementById('btn-checklist').classList.toggle('hidden', aan);
+  // subtipe checkbox hanya untuk aanwijzing
+  const wrap = document.getElementById('aan-subtipe-wrap');
+  if (wrap) wrap.classList.toggle('hidden', !aan);
+  if (!aan) {
+    if (document.getElementById('chk-klarifikasi')) document.getElementById('chk-klarifikasi').checked = false;
+    if (document.getElementById('chk-lapangan'))    document.getElementById('chk-lapangan').checked = false;
+  }
 }
 
 // ── Peserta ───────────────────────────────────────────────────
@@ -286,6 +306,7 @@ function getFormData() {
 
   return {
     jenis:             currentType,
+    subtipe:           getSubtipe(),
     nama_pekerjaan:    document.getElementById('nama_pekerjaan').value.trim(),
     nomor_urut:        nomorUrut,
     nomor_pengadaan:   nomorFull,
@@ -575,17 +596,25 @@ function generatePDF() {
     // ────────────────────────────────────
 
     // Header
+    const judulText = data.subtipe
+      ? `BERITA ACARA AANWIJZING ${data.subtipe}`
+      : 'BERITA ACARA AANWIJZING';
     content.push(
-      { text: 'BERITA ACARA AANWIJZING', style: 'judul' },
+      { text: judulText, style: 'judul' },
       { text: data.nama_pekerjaan || '...', style: 'subjudul' },
       { text: `Nomor: ${data.nomor_pengadaan || '...'}`, style: 'nomor' },
     );
 
     // Paragraf 1
+    const subtipeMap = { 'KLARIFIKASI/LANJUTAN': 'Klarifikasi/Lanjutan', 'LAPANGAN': 'Lapangan' };
+    const subtipeSentence = data.subtipe ? (subtipeMap[data.subtipe] || data.subtipe) : '';
+    const p1akhir = subtipeSentence
+      ? `, telah dilaksanakan Rapat Penjelasan Pekerjaan (Aanwijzing) ${subtipeSentence}.`
+      : ', telah dilaksanakan Rapat Penjelasan Pekerjaan (Aanwijzing).';
     content.push(para([
       'Pada hari ini, ', bold(data.hari||'...'), ', tanggal ', bold(data.tanggal||'...'),
       ', pukul ', bold(data.jam), ', bertempat di ', bold(data.lokasi||'...'),
-      ', telah dilaksanakan Rapat Penjelasan Pekerjaan (Aanwijzing).'
+      p1akhir
     ]));
 
     // Paragraf 2 — menggantikan tabel info
@@ -807,13 +836,13 @@ function generatePDF() {
         bold:      true,
         alignment: C,
         
-        margin:    [0, 0, 0, 2],
+        margin:    [0, 0, 0, 4],
       },
       subjudul: {
         fontSize:  fH,
         bold:      true,
         alignment: C,
-        margin:    [0, 0, 0, 2],
+        margin:    [0, 0, 0, 4],
       },
       nomor: {
         fontSize:  f,
