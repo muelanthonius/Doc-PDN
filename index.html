@@ -399,9 +399,23 @@
         <div class="ttd-box">
           <div class="ttd-box-header">Mengetahui</div>
           <div class="ttd-box-body">
-            <div class="ttd-fixed">
+            <div class="ttd-fixed" id="jessica-fixed-pembukaan">
               <div class="name">Jessica Puspadayasari</div>
               <div class="jabatan">Asdep Pelaksanaan Pengadaan</div>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label>Pps (opsional)</label>
+              <select id="pps_pembukaan_select" onchange="handlePpsSelect('pps_pembukaan_select','jessica-fixed-pembukaan')">
+                <option value="">-- Tidak ada Pps --</option>
+            <option value="Aidil Saputra">Aidil Saputra</option>
+            <option value="Arief Noormansyah">Arief Noormansyah</option>
+            <option value="Dwi Emanto Rahman Hajianto">Dwi Emanto Rahman Hajianto</option>
+            <option value="Nanda Pratama Krisharyono">Nanda Pratama Krisharyono</option>
+            <option value="Ninggar Hesti Pratiwi">Ninggar Hesti Pratiwi</option>
+            <option value="Rahmadhona Dwi Siska">Rahmadhona Dwi Siska</option>
+            <option value="Samuel Anthonius Maduwu">Samuel Anthonius Maduwu</option>
+            <option value="Setyo Hardiyanto">Setyo Hardiyanto</option>
+              </select>
             </div>
           </div>
         </div>
@@ -420,7 +434,7 @@
             <option value="Rahmadhona Dwi Siska">Rahmadhona Dwi Siska</option>
             <option value="Samuel Anthonius Maduwu">Samuel Anthonius Maduwu</option>
             <option value="Setyo Hardiyanto">Setyo Hardiyanto</option>
-            <option value="__manual__">Lainnya...</option>
+            <option value="__manual__">Tulis manual...</option>
               </select>
               <input type="text" id="pelaksana_nama_manual" placeholder="Tulis nama..." style="margin-top:8px;display:none;">
               <input type="hidden" id="pelaksana_nama">
@@ -459,9 +473,23 @@
 
       <!-- Kanan: Unit Kerja Pengadaan -->
       <div class="section-sub-header">Unit Kerja Pengadaan</div>
-      <div class="ttd-fixed" style="margin-bottom:10px;">
+      <div class="ttd-fixed" id="jessica-fixed-aanwijzing" style="margin-bottom:10px;">
         <div class="name">Jessica Puspadayasari</div>
-        <div class="jabatan">Asdep Pelaksanaan Pengadaan (kunci)</div>
+        <div class="jabatan">Asdep Pelaksanaan Pengadaan</div>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Pps (opsional)</label>
+        <select id="pps_aanwijzing_select" onchange="handlePpsSelect('pps_aanwijzing_select','jessica-fixed-aanwijzing')">
+          <option value="">-- Tidak ada Pps --</option>
+            <option value="Aidil Saputra">Aidil Saputra</option>
+            <option value="Arief Noormansyah">Arief Noormansyah</option>
+            <option value="Dwi Emanto Rahman Hajianto">Dwi Emanto Rahman Hajianto</option>
+            <option value="Nanda Pratama Krisharyono">Nanda Pratama Krisharyono</option>
+            <option value="Ninggar Hesti Pratiwi">Ninggar Hesti Pratiwi</option>
+            <option value="Rahmadhona Dwi Siska">Rahmadhona Dwi Siska</option>
+            <option value="Samuel Anthonius Maduwu">Samuel Anthonius Maduwu</option>
+            <option value="Setyo Hardiyanto">Setyo Hardiyanto</option>
+        </select>
       </div>
       <div class="field">
         <label>Nama Pelaksana Pengadaan</label>
@@ -475,7 +503,7 @@
             <option value="Rahmadhona Dwi Siska">Rahmadhona Dwi Siska</option>
             <option value="Samuel Anthonius Maduwu">Samuel Anthonius Maduwu</option>
             <option value="Setyo Hardiyanto">Setyo Hardiyanto</option>
-            <option value="__manual__">Lainnya...</option>
+            <option value="__manual__">Tulis manual...</option>
         </select>
         <input type="text" id="aan_pelaksana_manual" placeholder="Tulis nama..." style="margin-top:8px;display:none;">
         <input type="hidden" id="aan_pelaksana_nama">
@@ -487,8 +515,55 @@
 
   <!-- Action Buttons -->
   <div class="generate-wrap">
-    
+    <button class="btn-checklist hidden" id="btn-checklist" onclick="toggleChecklist()">&#9776; Checklist Lampiran</button>
     <button class="btn-generate" onclick="generatePDF()">&#8595; Unduh PDF</button>
+  </div>
+
+  <!-- Checklist Lampiran (Pembukaan only, toggle) -->
+  <div class="section hidden" id="section-checklist" style="margin-top:20px;">
+    <div class="section-header">
+      <span class="section-title">Checklist Lampiran</span>
+    </div>
+    <div class="section-body">
+      <div class="form-row triple">
+        <div>
+          <div class="section-sub-header" style="margin-bottom:10px;">Dokumen Administrasi</div>
+          <div id="admin-list">
+            <div class="list-item">
+              <span class="list-num">1.</span>
+              <input type="text" placeholder="Dokumen administrasi...">
+              <button class="btn-icon" onclick="removeCheckItem(this)" title="Hapus">&#215;</button>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addCheckItem('admin-list')">+ Tambah</button>
+        </div>
+        <div>
+          <div class="section-sub-header" style="margin-bottom:10px;">Dokumen Teknis</div>
+          <div id="teknis-list">
+            <div class="list-item">
+              <span class="list-num">1.</span>
+              <input type="text" placeholder="Dokumen teknis...">
+              <button class="btn-icon" onclick="removeCheckItem(this)" title="Hapus">&#215;</button>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addCheckItem('teknis-list')">+ Tambah</button>
+        </div>
+        <div>
+          <div class="section-sub-header" style="margin-bottom:10px;">Dokumen Harga</div>
+          <div id="harga-list">
+            <div class="list-item">
+              <span class="list-num">1.</span>
+              <input type="text" placeholder="Dokumen harga...">
+              <button class="btn-icon" onclick="removeCheckItem(this)" title="Hapus">&#215;</button>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addCheckItem('harga-list')">+ Tambah</button>
+        </div>
+      </div>
+      <div class="generate-wrap" style="margin-top:16px;">
+        <button class="btn-generate" onclick="generateChecklist()">&#8595; Unduh Checklist</button>
+      </div>
+    </div>
   </div>
 
 </div>

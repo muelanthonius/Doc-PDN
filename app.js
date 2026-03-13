@@ -41,6 +41,19 @@ function handlePelaksanaSelect(selectId, manualId) {
   }
 }
 
+// ── Pps (Pejabat Penanda tangan Sementara) ──────────────────
+function handlePpsSelect(selectId, jessicaBoxId) {
+  const val      = document.getElementById(selectId).value;
+  const jessBox  = document.getElementById(jessicaBoxId);
+  // Sembunyikan box Jessica jika Pps dipilih
+  jessBox.style.display = val ? 'none' : '';
+}
+
+function getPpsNama(selectId) {
+  const el = document.getElementById(selectId);
+  return el ? el.value : '';
+}
+
 function getPelaksanaNama(selectId, manualId) {
   const sel = document.getElementById(selectId);
   if (!sel) return '';
@@ -115,8 +128,7 @@ function switchType(val) {
   document.getElementById('section-perubahan').classList.toggle('hidden', !aan);
   document.getElementById('section-ttd-pembukaan').classList.toggle('hidden', aan);
   document.getElementById('section-ttd-aanwijzing').classList.toggle('hidden', !aan);
-  // Q&A tidak auto-generate, user klik + sendiri
-  // UKP default 1 item sudah ada di HTML
+  document.getElementById('btn-checklist').classList.toggle('hidden', aan);
 }
 
 // ── Peserta ───────────────────────────────────────────────────
@@ -294,6 +306,7 @@ function getFormData() {
     jadwal_pembukaan_jam: fmtJam('jadwal_pembukaan'),
     jadwal_lokasi_pembukaan: document.getElementById('jadwal_lokasi_pembukaan') ? document.getElementById('jadwal_lokasi_pembukaan').value.trim() : '',
     // TTD
+    pps_nama:          isAan ? getPpsNama('pps_aanwijzing_select') : getPpsNama('pps_pembukaan_select'),
     ukp:               isAan ? getUKP() : [],
     ukpng_deputi_jabatan: isAan && document.getElementById('ukpng_deputi_jabatan') ? document.getElementById('ukpng_deputi_jabatan').value.trim() : 'Deputi Bidang Pengadaan',
     ukpng_deputi_nama:    isAan && document.getElementById('ukpng_deputi_nama') ? document.getElementById('ukpng_deputi_nama').value.trim() : '',
@@ -469,6 +482,22 @@ function generatePDF() {
         { text: jabatan, alignment: C, fontSize: f },
       ]
     };
+  }
+
+  // TTD kanan: Jessica (normal) atau Pps (nama + Penata + Pps. Asdep)
+  function ttdKanan(label, ppsNama) {
+    if (ppsNama) {
+      return {
+        stack: [
+          { text: label,   bold: true, alignment: C, fontSize: f },
+          { text: '',      margin: [0, 60, 0, 0] },
+          { text: ppsNama, bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+          { text: 'Penata Pelaksana Pengadaan', alignment: C, fontSize: f },
+          { text: 'Pps. Asdep Pelaksanaan Pengadaan', alignment: C, fontSize: f },
+        ]
+      };
+    }
+    return ttdBlock(label, 'Jessica Puspadayasari', 'Asdep Pelaksanaan Pengadaan');
   }
 
   // ══════════════════
@@ -702,7 +731,7 @@ function generatePDF() {
         ),
         {
           columns: [
-            ttdBlock('Mengetahui,', 'Jessica Puspadayasari', 'Asdep Pelaksanaan Pengadaan'),
+            ttdKanan('Mengetahui,', data.pps_nama, data.pelaksana_nama),
             ttdBlock('Yang Membuat,', data.pelaksana_nama || '...', 'Penata Pelaksana Pengadaan'),
           ],
           columnGap: 20,
@@ -744,7 +773,7 @@ function generatePDF() {
             // ── Kanan: UKPng ──
             {
               stack: [
-                ttdBlock('Unit Kerja Pengadaan,', 'Jessica Puspadayasari', 'Asdep Pelaksanaan Pengadaan'),
+                ttdKanan('Unit Kerja Pengadaan,', data.pps_nama, data.aan_pelaksana_nama),
                 ttdBlock('', data.aan_pelaksana_nama || '...', 'Penata Pelaksana Pengadaan'),
               ]
             }
@@ -778,18 +807,18 @@ function generatePDF() {
         bold:      true,
         alignment: C,
         
-        margin:    [0, 0, 0, 6],
+        margin:    [0, 0, 0, 2],
       },
       subjudul: {
         fontSize:  fH,
         bold:      true,
         alignment: C,
-        margin:    [0, 0, 0, 4],
+        margin:    [0, 0, 0, 2],
       },
       nomor: {
         fontSize:  f,
         alignment: C,
-        margin:    [0, 0, 0, 14],
+        margin:    [0, 0, 0, 20],
       },
     },
 
@@ -807,4 +836,166 @@ function generatePDF() {
   const filename = isAan ? 'BA_Aanwijzing' : 'BA_Pembukaan_Dokumen';
   const nomor    = (data.nomor_pengadaan || 'dokumen').replace(/\//g, '-');
   pdfMake.createPdf(docDefinition).download(`${filename}_${nomor}.pdf`);
+}
+// ══════════════════════════════════════════════════════════════
+// CHECKLIST LAMPIRAN — pdfmake
+// ══════════════════════════════════════════════════════════════
+
+function toggleChecklist() {
+  const section = document.getElementById('section-checklist');
+  const btn     = document.getElementById('btn-checklist');
+  const visible = !section.classList.contains('hidden');
+  section.classList.toggle('hidden', visible);
+  btn.textContent = visible ? '☰ Checklist Lampiran' : '✕ Tutup Checklist';
+}
+
+function addCheckItem(listId) {
+  const list = document.getElementById(listId);
+  const idx  = list.querySelectorAll('.list-item').length + 1;
+  const div  = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML = `<span class="list-num">${idx}.</span>
+    <input type="text" placeholder="Isi dokumen...">
+    <button class="btn-icon" onclick="removeCheckItem(this)" title="Hapus">&#215;</button>`;
+  list.appendChild(div);
+}
+
+function removeCheckItem(btn) {
+  const list = btn.parentElement.parentElement;
+  btn.parentElement.remove();
+  list.querySelectorAll('.list-num').forEach((s, i) => s.textContent = (i+1)+'.');
+}
+
+function getCheckItems(listId) {
+  return [...document.querySelectorAll(`#${listId} .list-item input`)]
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+function generateChecklist() {
+  const data    = getFormData();
+  const peserta = data.peserta;
+  const admin   = getCheckItems('admin-list');
+  const teknis  = getCheckItems('teknis-list');
+  const harga   = getCheckItems('harga-list');
+
+  const J  = 'justify';
+  const C  = 'center';
+  const L  = 'left';
+  const f  = 11;
+  const fH = 13;
+  const pageMargin = [70, 70, 56, 56];
+
+  // ── Helper: buat tabel checklist ──
+  // Maks 4 perusahaan per tabel. Jika lebih, buat tabel baru di bawah.
+  function makeCheckTable(headerLabel, items, companies) {
+    const result = [];
+    const CHUNK  = 3;
+
+    for (let ci = 0; ci < companies.length; ci += CHUNK) {
+      const chunk = companies.slice(ci, ci + CHUNK);
+      const colWidths = [20, 140, ...chunk.map(() => '*')];
+
+      const headerRow = [
+        { text: 'No',       bold: true, alignment: C, fillColor: '#e8e8e8' },
+        { text: headerLabel, bold: true, alignment: C, fillColor: '#e8e8e8' },
+        ...chunk.map(p => ({ text: p, bold: true, alignment: C, fillColor: '#e8e8e8', fontSize: 9 })),
+      ];
+
+      const bodyRows = items.map((item, i) => [
+        { text: String(i + 1), alignment: C },
+        { text: item, alignment: L },
+        ...chunk.map(() => ({ text: '' })),
+      ]);
+
+      result.push({
+        table: { headerRows: 1, widths: colWidths, body: [headerRow, ...bodyRows] },
+        fontSize: f,
+        margin: [0, 4, 0, 12],
+      });
+    }
+    return result;
+  }
+
+  // ── TTD block ──
+  function ttd(label, nama, jabatan) {
+    return {
+      stack: [
+        { text: label,   bold: true, alignment: C, fontSize: f },
+        { text: '',      margin: [0, 60, 0, 0] },
+        { text: nama,    bold: true, alignment: C, fontSize: f, margin: [0, 4, 0, 0] },
+        { text: jabatan, alignment: C, fontSize: f },
+      ]
+    };
+  }
+
+  function ttdKananCl(label, ppsNama) {
+    if (ppsNama) {
+      return {
+        stack: [
+          { text: label,   bold: true, alignment: C, fontSize: f },
+          { text: '',      margin: [0, 60, 0, 0] },
+          { text: ppsNama, bold: true, alignment: C, fontSize: f, margin: [0, 4, 0, 0] },
+          { text: 'Penata Pelaksana Pengadaan', alignment: C, fontSize: f },
+          { text: 'Pps. Asdep Pelaksanaan Pengadaan', alignment: C, fontSize: f },
+        ]
+      };
+    }
+    return ttd(label, 'Jessica Puspadayasari', 'Asdep Pelaksanaan Pengadaan');
+  }
+
+  const pelaksanaNama = getPelaksanaNama('pelaksana_nama_select','pelaksana_nama_manual');
+  const ppsNamaCl     = getPpsNama('pps_pembukaan_select');
+
+  const content = [
+    // ── Header judul ──
+    { text: 'LAMPIRAN',                               bold: true, alignment: C, fontSize: fH, margin: [0, 0, 0, 4] },
+    { text: 'BERITA ACARA PEMBUKAAN DOKUMEN PENAWARAN', bold: true, alignment: C, fontSize: fH, margin: [0, 0, 0, 4] },
+    { text: data.nama_pekerjaan || '',                bold: true, alignment: C, fontSize: fH,  margin: [0, 0, 0, 4] },
+    { text: 'Nomor: ' + (data.nomor_pengadaan || ''), alignment: C, fontSize: f,              margin: [0, 0, 0, 20] },
+
+    // ── 1. Dokumen Administrasi ──
+    { text: '1.  Dokumen Administrasi', bold: true, fontSize: f, margin: [0, 0, 0, 4] },
+    ...(admin.length > 0 && peserta.length > 0
+      ? makeCheckTable('Dokumen Administrasi', admin, peserta)
+      : [{ text: '-', fontSize: f, margin: [0, 0, 0, 12] }]),
+
+    // ── 2. Dokumen Teknis ──
+    { text: '2.  Dokumen Teknis', bold: true, fontSize: f, margin: [0, 8, 0, 4] },
+    ...(teknis.length > 0 && peserta.length > 0
+      ? makeCheckTable('Dokumen Teknis', teknis, peserta)
+      : [{ text: '-', fontSize: f, margin: [0, 0, 0, 12] }]),
+
+    // ── 3. Dokumen Harga ──
+    { text: '3.  Dokumen Harga', bold: true, fontSize: f, margin: [0, 8, 0, 4] },
+    ...(harga.length > 0 && peserta.length > 0
+      ? makeCheckTable('Dokumen Harga', harga, peserta)
+      : [{ text: '-', fontSize: f, margin: [0, 0, 0, 12] }]),
+
+    // ── TTD ──
+    {
+      unbreakable: true,
+      stack: [{
+        columns: [
+          ttdKananCl('Mengetahui,', ppsNamaCl),
+          ttd('Yang Membuat,', pelaksanaNama || '...', 'Penata Pelaksana Pengadaan'),
+        ],
+        columnGap: 20,
+        margin: [0, 30, 0, 0],
+      }]
+    }
+  ];
+
+  const docDefinition = {
+    pageSize:    'A4',
+    pageMargins: pageMargin,
+    defaultStyle:    { font: 'Roboto', fontSize: f },
+    content,
+    footer: (currentPage, pageCount) => ({
+      text:      `Halaman ${currentPage} dari ${pageCount}`,
+      alignment: C, fontSize: 9, margin: [0, 10, 0, 0],
+    }),
+  };
+
+  const nomor = (data.nomor_pengadaan || 'dokumen').replace(/\//g, '-');
+  pdfMake.createPdf(docDefinition).download(`Checklist_Lampiran_${nomor}.pdf`);
 }

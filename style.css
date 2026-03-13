@@ -495,3 +495,12 @@ select {
   flex-direction: column;
   gap: 12px;
 }
+
+/* ── Checklist Button ── */
+.btn-checklist {
+  padding: 12px 24px; background: none;
+  border: 1px solid var(--accent); color: var(--accent);
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  cursor: pointer; letter-spacing: 0.05em; transition: all 0.15s;
+}
+.btn-checklist:hover { background: var(--accent-light); }
