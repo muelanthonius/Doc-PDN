@@ -778,7 +778,7 @@ function generatePDF() {
         para([
           'Berita Acara ini merupakan bagian dan menjadi satu kesatuan yang tidak terpisahkan dengan RKS. ',
           'Demikian Berita Acara ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.'
-        ], { margin: [0, 12, 0, 0] }),
+        ], { margin: [0, 12, 40, 0] }),
 
         // TTD Aanwijzing: 2 kolom
         // Kiri: Unit Kerja Pengguna (bisa lebih dari 1)
@@ -788,22 +788,44 @@ function generatePDF() {
             // ── Kiri: UKP ──
             {
               stack: [
+                { text: 'Unit Kerja Pengguna,', bold: true, alignment: C, fontSize: f },
                 ...(data.ukp.length === 0 ? [
-                  ttdBlock('Unit Kerja Pengguna,', '...', '...')
-                ] : data.ukp.map((u, i) => (
-                  ttdBlock(
-                    i === 0 ? 'Unit Kerja Pengguna,' : '',
-                    u.nama    || '...',
-                    u.jabatan || ''
-                  )
-                )))
+                  { text: '', margin: [0, 50, 0, 0] },
+                  { text: '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                  { text: '...', alignment: C, fontSize: f },
+                ] : data.ukp.map((u, idx) => ({
+                  stack: [
+                    { text: u.jabatan || '', alignment: C, fontSize: f, margin:[0, idx===0?4:20, 0, 0] },
+                    { text: '', margin: [0, 50, 0, 0] },
+                    { text: u.nama || '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                  ]
+                })))
               ]
             },
             // ── Kanan: UKPng ──
             {
               stack: [
-                ttdKanan('Unit Kerja Pengadaan,', data.pps_nama, data.aan_pelaksana_nama),
-                ttdBlock('', data.aan_pelaksana_nama || '...', 'Penata Pelaksana Pengadaan'),
+                data.pps_nama ? {
+                  stack: [
+                    { text: 'Unit Kerja Pengadaan,',       bold: true, alignment: C, fontSize: f },
+                    { text: 'Penata Pelaksana Pengadaan,', alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: '', margin: [0, 50, 0, 0] },
+                    { text: data.pps_nama, bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: 'Penata Pelaksana Pengadaan',        alignment: C, fontSize: f },
+                    { text: 'Pps. Asdep Pelaksanaan Pengadaan', alignment: C, fontSize: f },
+                  ]
+                } : {
+                  stack: [
+                    { text: 'Unit Kerja Pengadaan,',        bold: true, alignment: C, fontSize: f },
+                    { text: 'Asdep Pelaksanaan Pengadaan,', alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: '', margin: [0, 50, 0, 0] },
+                    { text: 'Jessica Puspadayasari', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: '', margin: [0, 20, 0, 0] },
+                    { text: 'Penata Pelaksana Pengadaan,', alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: '', margin: [0, 50, 0, 0] },
+                    { text: data.aan_pelaksana_nama || '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                  ]
+                }
               ]
             }
           ],
