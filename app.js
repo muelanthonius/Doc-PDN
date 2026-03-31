@@ -206,6 +206,238 @@ function getQA() {
 }
 
 // ── Perubahan ─────────────────────────────────────────────────
+
+function richToolbar(fieldId) {
+  return `<div class="rich-toolbar">
+    <button type="button" class="rich-btn" onclick="richCmd('bold','${fieldId}')" title="Bold"><b>B</b></button>
+    <button type="button" class="rich-btn" onclick="richCmd('italic','${fieldId}')" title="Italic"><i>I</i></button>
+    <span class="rich-sep"></span>
+    <button type="button" class="rich-btn" onclick="richCmd('insertUnorderedList','${fieldId}')" title="Bullet list">&#8226; List</button>
+    <button type="button" class="rich-btn" onclick="insertOrderedListType('${fieldId}','1')" title="Numbered 1,2,3">1. List</button>
+    <button type="button" class="rich-btn" onclick="insertOrderedListType('${fieldId}','A')" title="Huruf A,B,C">A. List</button>
+    <button type="button" class="rich-btn" onclick="insertOrderedListType('${fieldId}','a')" title="Huruf a,b,c">a. List</button>
+    <span class="rich-sep"></span>
+    <button type="button" class="rich-btn" onclick="richCmd('outdent','${fieldId}')" title="Decrease Indent">&#8676; Out</button>
+    <button type="button" class="rich-btn" onclick="richCmd('indent','${fieldId}')" title="Increase Indent">&#8677; In</button>
+    <span class="rich-sep"></span>
+    <label class="rich-btn rich-img-btn" title="Upload Gambar">
+      &#128247; Gambar
+      <input type="file" accept="image/*" style="display:none" onchange="insertImage(this,'${fieldId}')">
+    </label>
+  </div>`;
+}
+
+function makeRichField(label, fieldClass, placeholder, id) {
+  const fid = `rich-${fieldClass}-${id}`;
+  return `<div class="field">
+    <div class="rich-label-row">
+      <label>${label}</label>
+      <button type="button" class="rich-toggle-btn" onclick="toggleRich('${fid}','${fieldClass}',${id})" title="Aktifkan Rich Editor">&#9998;</button>
+    </div>
+    <textarea class="${fieldClass} plain-field" placeholder="${placeholder}" rows="2" id="${fid}-plain"></textarea>
+    <div class="rich-editor-wrap hidden" id="${fid}-wrap">
+      ${richToolbar(fid)}
+      <div class="rich-editor" id="${fid}" contenteditable="true" data-placeholder="${placeholder}"></div>
+    </div>
+  </div>`;
+}
+
+function toggleRich(fid, fieldClass, id) {
+  const plainEl = document.getElementById(`${fid}-plain`);
+  const wrapEl  = document.getElementById(`${fid}-wrap`);
+  const richEl  = document.getElementById(fid);
+  const btn     = plainEl.parentElement.querySelector('.rich-toggle-btn');
+  const isRich  = !wrapEl.classList.contains('hidden');
+  if (isRich) {
+    // Rich → Plain: ambil teks saja
+    plainEl.value = richEl.innerText;
+    wrapEl.classList.add('hidden');
+    plainEl.classList.remove('hidden');
+    btn.style.color = '';
+  } else {
+    // Plain → Rich: pindahkan teks ke editor
+    richEl.innerHTML = plainEl.value ? `<p>${plainEl.value.replace(/\n/g,'</p><p>')}</p>` : '';
+    wrapEl.classList.remove('hidden');
+    plainEl.classList.add('hidden');
+    btn.style.color = 'var(--accent)';
+    richEl.focus();
+  }
+}
+
+function richCmd(cmd, fid) {
+  const el = document.getElementById(fid);
+  el.focus();
+  document.execCommand(cmd, false, null);
+}
+
+function insertOrderedListType(fid, listType) {
+  const el = document.getElementById(fid);
+  el.focus();
+  // Cek apakah sudah ada OL aktif
+  const sel = window.getSelection();
+  let node = sel.anchorNode;
+  let ol = null;
+  while (node && node !== el) {
+    if (node.tagName === 'OL') { ol = node; break; }
+    node = node.parentNode;
+  }
+  if (ol) {
+    // Ubah type OL yang sudah ada
+    ol.setAttribute('type', listType);
+    ol.style.listStyleType = listType === 'A' ? 'upper-alpha' : listType === 'a' ? 'lower-alpha' : 'decimal';
+  } else {
+    // Buat OL baru lalu set type
+    document.execCommand('insertOrderedList', false, null);
+    // Cari OL yang baru dibuat
+    const newSel = window.getSelection();
+    let n = newSel.anchorNode;
+    while (n && n !== el) {
+      if (n.tagName === 'OL') {
+        n.setAttribute('type', listType);
+        n.style.listStyleType = listType === 'A' ? 'upper-alpha' : listType === 'a' ? 'lower-alpha' : 'decimal';
+        break;
+      }
+      n = n.parentNode;
+    }
+  }
+}
+
+function insertImage(input, fid) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Kompres gambar via canvas sebelum insert
+    const imgEl = new Image();
+    imgEl.onload = () => {
+      const MAX_W = 600;
+      const scale = imgEl.width > MAX_W ? MAX_W / imgEl.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width  = imgEl.width  * scale;
+      canvas.height = imgEl.height * scale;
+      canvas.getContext('2d').drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+      const compressed = canvas.toDataURL('image/jpeg', 0.75);
+
+      const el = document.getElementById(fid);
+      el.focus();
+      // Bungkus img dalam div agar mudah dihapus
+      const uid = 'img-' + Date.now();
+      const html = `<div class="rich-img-block" id="${uid}" contenteditable="false" style="position:relative;display:inline-block;margin:4px 0;">
+        <img src="${compressed}" style="max-width:100%;display:block;">
+        <button type="button" onclick="removeRichImg('${uid}')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.55);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#215;</button>
+      </div><p></p>`;
+      document.execCommand('insertHTML', false, html);
+    };
+    imgEl.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function removeRichImg(uid) {
+  const el = document.getElementById(uid);
+  if (el) el.remove();
+}
+
+function getRichValue(fid) {
+  const plain = document.getElementById(`${fid}-plain`);
+  const wrap  = document.getElementById(`${fid}-wrap`);
+  if (wrap && !wrap.classList.contains('hidden')) {
+    return document.getElementById(fid).innerHTML;
+  }
+  return plain ? plain.value.trim() : '';
+}
+
+// Konversi HTML rich editor → pdfmake nodes
+function htmlToPdfNodes(html, f, J, L) {
+  if (!html || html === '<br>') return [{ text: '-' }];
+  const parser = new DOMParser();
+  const doc    = parser.parseFromString(html, 'text/html');
+  const nodes  = [];
+
+  function parseNode(el) {
+    const tag = el.tagName ? el.tagName.toLowerCase() : '';
+    if (el.nodeType === 3) { // text node
+      return el.textContent ? { text: el.textContent } : null;
+    }
+    // Abaikan button (tombol hapus gambar)
+    if (tag === 'button') return null;
+    // Div wrapper rich-img-block — ambil img di dalamnya
+    if (tag === 'div' && el.classList && el.classList.contains('rich-img-block')) {
+      const img = el.querySelector('img');
+      if (img && img.src) return { image: img.src, width: 280, margin: [0, 4, 0, 4] };
+      return null;
+    }
+    if (tag === 'img') {
+      return { image: el.src, width: 280, margin: [0, 4, 0, 4] };
+    }
+    if (tag === 'ul') {
+      const items = [...el.querySelectorAll('li')].map(li => ({ text: li.innerText || li.textContent, fontSize: f }));
+      return { ul: items, fontSize: f, margin: [0, 2, 0, 2] };
+    }
+    if (tag === 'ol') {
+      const listType = el.getAttribute('type') || '1';
+      const items = [...el.children].filter(c=>c.tagName==='LI').map(li => {
+        const inlines = [...li.childNodes].map(n => {
+          if (n.nodeType===3) return { text: n.textContent };
+          const t = n.tagName ? n.tagName.toLowerCase() : '';
+          if (t==='b'||t==='strong') return { text: n.textContent, bold: true };
+          if (t==='i'||t==='em')     return { text: n.textContent, italics: true };
+          return { text: n.textContent };
+        }).filter(x => x.text);
+        return inlines.length===1 ? inlines[0] : { text: inlines };
+      });
+      const listStyleType = listType==='A' ? 'upper-alpha' : listType==='a' ? 'lower-alpha' : 'decimal';
+      return { ol: items, type: listStyleType, fontSize: f, margin: [0, 2, 0, 2] };
+    }
+    // inline bold/italic
+    const children = [...el.childNodes].map(parseNode).filter(Boolean);
+    const text = children.every(c => typeof c.text === 'string')
+      ? children.map(c => c.text).join('')
+      : null;
+    if (tag === 'b' || tag === 'strong') return text ? { text, bold: true } : null;
+    if (tag === 'i' || tag === 'em')     return text ? { text, italics: true } : null;
+    if (tag === 'p' || tag === 'div') {
+      // handle mixed inline
+      const inlines = [...el.childNodes].map(n => {
+        if (n.nodeType === 3) return { text: n.textContent };
+        const t = n.tagName ? n.tagName.toLowerCase() : '';
+        if (t === 'b' || t === 'strong') return { text: n.textContent, bold: true };
+        if (t === 'i' || t === 'em')     return { text: n.textContent, italics: true };
+        if (t === 'button') return null;
+        if (t === 'div' && n.classList && n.classList.contains('rich-img-block')) {
+          const img = n.querySelector('img');
+          return img && img.src ? { image: img.src, width: 280, margin:[0,4,0,4] } : null;
+        }
+        if (t === 'img') return { image: n.src, width: 280, margin:[0,2,0,2] };
+        if (t === 'ul') {
+          const items = [...n.querySelectorAll('li')].map(li => ({ text: li.innerText || li.textContent }));
+          return { ul: items };
+        }
+        if (t === 'ol') {
+          const listType = n.getAttribute('type') || '1';
+          const items = [...n.children].filter(c=>c.tagName==='LI').map(li=>({ text: li.innerText||li.textContent }));
+          const listStyleType = listType==='A' ? 'upper-alpha' : listType==='a' ? 'lower-alpha' : 'decimal';
+          return { ol: items, type: listStyleType };
+        }
+        return { text: n.textContent };
+      }).filter(x => x && (x.text !== '' || x.image || x.ul || x.ol));
+      if (inlines.length === 0) return null;
+      if (inlines.length === 1 && inlines[0].ul) return { ...inlines[0], fontSize: f, margin:[0,2,0,2] };
+      if (inlines.length === 1 && inlines[0].ol) return { ...inlines[0], fontSize: f, margin:[0,2,0,2] };
+      return { text: inlines, fontSize: f, alignment: J, margin:[0,0,0,2] };
+    }
+    return text ? { text, fontSize: f } : null;
+  }
+
+  [...doc.body.childNodes].forEach(n => {
+    const node = parseNode(n);
+    if (node) nodes.push(node);
+  });
+
+  return nodes.length > 0 ? nodes : [{ text: '-' }];
+}
+
 function addPerubahan() {
   perubahanCount++;
   const id = perubahanCount;
@@ -217,26 +449,35 @@ function addPerubahan() {
       <button class="btn-icon" onclick="document.getElementById('per-${id}').remove()">&#215;</button>
     </div>
     <div class="perubahan-body">
-      <div class="field"><label>Sebelum</label>
-        <textarea placeholder="Ketentuan sebelum perubahan..." rows="2"></textarea></div>
-      <div class="field"><label>Sesudah</label>
-        <textarea placeholder="Ketentuan sesudah perubahan..." rows="2"></textarea></div>
+      ${makeRichField('Sebelum','per-sebelum','Ketentuan sebelum perubahan...',id)}
+      ${makeRichField('Sesudah','per-sesudah','Ketentuan sesudah perubahan...',id)}
       <div class="form-row">
-        <div class="field"><label>Diusulkan Oleh</label>
-          <input type="text" placeholder="Nama / pihak yang mengusulkan"></div>
-        <div class="field"><label>Pertimbangan</label>
-          <input type="text" placeholder="Alasan / pertimbangan perubahan"></div>
+        <div class="field">
+          <div class="rich-label-row"><label>Diusulkan Oleh</label></div>
+          <input type="text" class="per-diusulkan" placeholder="Nama / pihak yang mengusulkan">
+        </div>
+        <div class="field">
+          <div class="rich-label-row"><label>Pertimbangan</label></div>
+          <input type="text" class="per-pertimbangan" placeholder="Alasan / pertimbangan perubahan">
+        </div>
       </div>
     </div>`;
   document.getElementById('perubahan-list').appendChild(div);
 }
 function getPerubahan() {
-  return [...document.querySelectorAll('.perubahan-item')].map(item => ({
-    sebelum:      item.querySelectorAll('textarea')[0].value.trim(),
-    sesudah:      item.querySelectorAll('textarea')[1].value.trim(),
-    diusulkan:    item.querySelectorAll('input')[0].value.trim(),
-    pertimbangan: item.querySelectorAll('input')[1].value.trim()
-  })).filter(p => p.sebelum || p.sesudah);
+  return [...document.querySelectorAll('.perubahan-item')].map((item, idx) => {
+    const id = idx + 1;
+    const sebelum = getRichValue(`rich-per-sebelum-${id}`);
+    const sesudah = getRichValue(`rich-per-sesudah-${id}`);
+    return {
+      sebelum,
+      sesudah,
+      diusulkan:    item.querySelector('.per-diusulkan')?.value.trim() || '',
+      pertimbangan: item.querySelector('.per-pertimbangan')?.value.trim() || '',
+      sebelumHtml: (() => { const w = document.getElementById(`rich-per-sebelum-${id}-wrap`); return w && !w.classList.contains('hidden') ? document.getElementById(`rich-per-sebelum-${id}`).innerHTML : null; })(),
+      sesudahHtml: (() => { const w = document.getElementById(`rich-per-sesudah-${id}-wrap`); return w && !w.classList.contains('hidden') ? document.getElementById(`rich-per-sesudah-${id}`).innerHTML : null; })(),
+    };
+  }).filter(p => p.sebelum || p.sesudah);
 }
 
 // ── Unit Kerja Pengguna (UKP) ────────────────────────────────
@@ -715,28 +956,31 @@ function generatePDF() {
       ];
       data.perubahan.forEach((p, i) => {
         const no = String(i + 1);
-        const rows = [
-          ['Sebelum',       p.sebelum      || '-'],
-          ['Sesudah',       p.sesudah      || '-'],
-          ['Diusulkan Oleh',p.diusulkan    || '-'],
-          ['Pertimbangan',  p.pertimbangan || '-'],
+        const richRows = [
+          ['Sebelum',        p.sebelumHtml, p.sebelum      || '-'],
+          ['Sesudah',        p.sesudahHtml, p.sesudah      || '-'],
+          ['Diusulkan Oleh', null,          p.diusulkan    || '-'],
+          ['Pertimbangan',   null,          p.pertimbangan || '-'],
         ];
-        rows.forEach(([uraian, ket], j) => {
+        richRows.forEach(([uraian, html, plain], j) => {
+          const ketCell = html
+            ? { stack: htmlToPdfNodes(html, f, J, L), alignment: J }
+            : { text: plain, alignment: J };
           perubahanRows.push([
             { text: j === 0 ? no : '', alignment: C },
             { text: uraian, alignment: L },
-            { text: ket,    alignment: J },
+            ketCell,
           ]);
         });
       });
       content.push({
         table: {
           headerRows: 1,
-          widths: [20, 80, '*'],
+          widths: [20, 80, 300],
           body: perubahanRows,
         },
         fontSize: f,
-        margin: [40, 4, 40, 8],
+        margin: [40, 4, 0, 8],
       });
     }
 
@@ -806,24 +1050,25 @@ function generatePDF() {
             {
               stack: [
                 data.pps_nama ? {
+                  // Format Pps: label → jabatan → spasi → nama → jabatan Pps
                   stack: [
                     { text: 'Unit Kerja Pengadaan,',       bold: true, alignment: C, fontSize: f },
                     { text: 'Penata Pelaksana Pengadaan,', alignment: C, fontSize: f, margin:[0,4,0,0] },
                     { text: '', margin: [0, 50, 0, 0] },
-                    { text: data.pps_nama, bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: data.pps_nama,                  bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
                     { text: 'Penata Pelaksana Pengadaan',        alignment: C, fontSize: f },
                     { text: 'Pps. Asdep Pelaksanaan Pengadaan', alignment: C, fontSize: f },
                   ]
                 } : {
+                  // Format normal: label → spasi → Jessica → jabatan → spasi → pelaksana → jabatan
                   stack: [
-                    { text: 'Unit Kerja Pengadaan,',        bold: true, alignment: C, fontSize: f },
-                    { text: 'Asdep Pelaksanaan Pengadaan,', alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: 'Unit Kerja Pengadaan,', bold: true, alignment: C, fontSize: f },
                     { text: '', margin: [0, 50, 0, 0] },
                     { text: 'Jessica Puspadayasari', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
-                    { text: '', margin: [0, 20, 0, 0] },
-                    { text: 'Penata Pelaksana Pengadaan,', alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: 'Asdep Pelaksanaan Pengadaan', alignment: C, fontSize: f },
                     { text: '', margin: [0, 50, 0, 0] },
                     { text: data.aan_pelaksana_nama || '...', bold: true, alignment: C, fontSize: f, margin:[0,4,0,0] },
+                    { text: 'Penata Pelaksana Pengadaan', alignment: C, fontSize: f },
                   ]
                 }
               ]
