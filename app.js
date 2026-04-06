@@ -1189,7 +1189,7 @@ function generateChecklist() {
 
     for (let ci = 0; ci < companies.length; ci += CHUNK) {
       const chunk = companies.slice(ci, ci + CHUNK);
-      const colWidths = [20, 140, ...chunk.map(() => '*')];
+      const colWidths = [20, 140, ...chunk.map(() => 103)];
 
       const headerRow = [
         { text: 'No',       bold: true, alignment: C, fillColor: '#e8e8e8' },
