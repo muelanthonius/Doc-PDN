@@ -1179,7 +1179,7 @@ function generateChecklist() {
   const L  = 'left';
   const f  = 11;
   const fH = 13;
-  const pageMargin = [70, 70, 56, 56];
+  const pageMargin = [70, 70, 70, 56];
 
   // ── Helper: buat tabel checklist ──
   // Maks 4 perusahaan per tabel. Jika lebih, buat tabel baru di bawah.
@@ -1189,7 +1189,7 @@ function generateChecklist() {
 
     for (let ci = 0; ci < companies.length; ci += CHUNK) {
       const chunk = companies.slice(ci, ci + CHUNK);
-      const colWidths = [20, 140, ...chunk.map(() => 103)];
+      const colWidths = [20, 140, ...chunk.map(() => 83)];
 
       const headerRow = [
         { text: 'No',       bold: true, alignment: C, fillColor: '#e8e8e8' },
@@ -1210,6 +1210,43 @@ function generateChecklist() {
       });
     }
     return result;
+  }
+
+  // Anda bisa letakkan fungsi ini di bawah fungsi makeCheckTable
+  function makeAdditionalTable(data) {
+    const peserta = data.peserta;
+    const f = 11; // Samakan font size global
+    const C = 'center'; // Samakan alignment center
+
+    // Header tabel dengan style yang sama (bold, fillColor)
+    const tableHeader = [
+        { text: 'No', bold: true, alignment: C, fillColor: '#e8e8e8' },
+        { text: 'Nama Peserta', bold: true, alignment: C, fillColor: '#e8e8e8' },
+        { text: 'Pakta Integritas', bold: true, alignment: C, fillColor: '#e8e8e8' },
+    ];
+
+    // Membuat baris untuk setiap peserta
+    const body = [tableHeader];
+    peserta.forEach((p, index) => {
+        const row = [
+            { text: index + 1, alignment: C },
+            { text: p },
+            { text: ' ' }, 
+        ];
+        body.push(row);
+    });
+
+    // Struktur lengkap untuk pdfmake, disamakan dengan makeCheckTable
+    return {
+        table: {
+            headerRows: 1,
+            // Atur lebar kolom: No (sedikit), Nama Peserta (paling lebar), Pakta Integritas (sedang)
+            widths: [25, '*', 100], 
+            body: body,
+        },
+        fontSize: f, // Samakan font size
+        margin: [0, 4, 0, 12], // Samakan margin bawah
+    };
   }
 
   // ── TTD block ──
@@ -1267,7 +1304,13 @@ function generateChecklist() {
       ? makeCheckTable('Dokumen Harga', harga, peserta)
       : [{ text: '-', fontSize: f, margin: [0, 0, 0, 12] }]),
 
-    // ── TTD ──
+    // ── 4. Dokumen Tambahan ──
+    { text: '4.  Dokumen Tambahan', bold: true, fontSize: f, margin: [0, 8, 0, 4] },
+    ...(peserta.length > 0
+      ? [makeAdditionalTable(data)]
+      : [{ text: '-', fontSize: f, margin: [0, 0, 0, 12] }]),
+      
+      // ── TTD ──
     {
       unbreakable: true,
       stack: [{
