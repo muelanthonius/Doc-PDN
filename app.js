@@ -131,25 +131,74 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Switch Type ───────────────────────────────────────────────
+// GANTI FUNGSI LAMA ANDA DENGAN VERSI FINAL DAN LENGKAP INI
+// GANTI FUNGSI LAMA DENGAN VERSI PRESISI INI
 function switchType(val) {
   currentType = val;
+
+  // 1. Atur Kartu Aktif
   document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
-  document.getElementById('card-' + val).classList.add('active');
-  const aan = val === 'aanwijzing';
-  document.getElementById('section-jadwal').classList.toggle('hidden', !aan);
-  document.getElementById('section-qa').classList.toggle('hidden', !aan);
-  document.getElementById('section-perubahan').classList.toggle('hidden', !aan);
-  document.getElementById('section-ttd-pembukaan').classList.toggle('hidden', aan);
-  document.getElementById('section-ttd-aanwijzing').classList.toggle('hidden', !aan);
-  document.getElementById('btn-checklist').classList.toggle('hidden', aan);
-  // subtipe checkbox hanya untuk aanwijzing
-  const wrap = document.getElementById('aan-subtipe-wrap');
-  if (wrap) wrap.classList.toggle('hidden', !aan);
-  if (!aan) {
-    if (document.getElementById('chk-klarifikasi')) document.getElementById('chk-klarifikasi').checked = false;
-    if (document.getElementById('chk-lapangan'))    document.getElementById('chk-lapangan').checked = false;
+  const activeCard = document.getElementById('card-' + val);
+  if (activeCard) activeCard.classList.add('active');
+
+  // Variabel Status
+  const isAanwijzing = val === 'aanwijzing';
+  const isPembukaan = val === 'pembukaan';
+  const isPengumuman = val === 'pengumuman';
+
+  // 2. Kontrol Visibilitas Form Utama
+  const formAanwijzing = document.getElementById('form-aanwijzing');
+  const formPembukaan = document.getElementById('form-pembukaan');
+  const formPengumuman = document.getElementById('form-pengumuman');
+
+  if (formAanwijzing) formAanwijzing.classList.toggle('hidden', !isAanwijzing);
+  if (formPembukaan) formPembukaan.classList.toggle('hidden', !isPembukaan);
+  if (formPengumuman) formPengumuman.classList.toggle('hidden', !isPengumuman);
+
+
+  // =====================================================================
+  // ===>>> LOGIKA BARU: HAPUS TOTAL DATA UMUM & PESERTA <<<==============
+  // =====================================================================
+  const sectionDataUmum = document.getElementById('section-data-umum');
+  const sectionPeserta = document.getElementById('section-peserta');
+  
+  // Menggunakan style.display = 'none' adalah cara paling mutlak untuk menyembunyikan
+  if (sectionDataUmum) {
+      sectionDataUmum.style.display = isPengumuman ? 'none' : ''; 
+  }
+  if (sectionPeserta) {
+      sectionPeserta.style.display = isPengumuman ? 'none' : '';
+  }
+  // =====================================================================
+
+
+  // 3. Kontrol Elemen Khusus Aanwijzing & Pembukaan
+  const sectionTtdAanwijzing = document.getElementById('section-ttd-aanwijzing');
+  const sectionTtdPembukaan = document.getElementById('section-ttd-pembukaan');
+  const aanSubtipeWrap = document.getElementById('aan-subtipe-wrap');
+  const btnChecklist = document.getElementById('btn-checklist');
+
+  if (sectionTtdAanwijzing) sectionTtdAanwijzing.classList.toggle('hidden', !isAanwijzing);
+  if (aanSubtipeWrap) aanSubtipeWrap.classList.toggle('hidden', !isAanwijzing);
+  if (sectionTtdPembukaan) sectionTtdPembukaan.classList.toggle('hidden', !isPembukaan);
+  if (btnChecklist) btnChecklist.classList.toggle('hidden', !isPembukaan);
+
+  // 4. Kontrol Tombol Unduh
+  const btnUnduhUtama = document.getElementById('btn-unduh-utama');
+  const btnUnduhPengumuman = document.getElementById('btn-unduh-pengumuman');
+  
+  if (btnUnduhUtama) btnUnduhUtama.classList.toggle('hidden', isPengumuman);
+  if (btnUnduhPengumuman) btnUnduhPengumuman.classList.toggle('hidden', !isPengumuman);
+
+  // Reset Subtipe Aanwijzing
+  if (!isAanwijzing) {
+    const chkKlarifikasi = document.getElementById('chk-klarifikasi');
+    const chkLapangan = document.getElementById('chk-lapangan');
+    if (chkKlarifikasi) chkKlarifikasi.checked = false;
+    if (chkLapangan) chkLapangan.checked = false;
   }
 }
+
 
 // ── Peserta ───────────────────────────────────────────────────
 function addPeserta() {
@@ -1338,3 +1387,277 @@ function generateChecklist() {
   const nomor = (data.nomor_pengadaan || 'dokumen').replace(/\//g, '-');
   pdfMake.createPdf(docDefinition).download(`Checklist_Lampiran_${nomor}.pdf`);
 }
+
+// TAMBAHKAN FUNGSI HELPER BARU INI DI APP.JS ANDA
+// GANTI DENGAN VERSI INI
+function createRotatedText(text) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // TIDAK PERLU LAGI MEMOTONG TEKS
+    
+    const fontSize = 10;
+    const font = `${fontSize}px Roboto`;
+    ctx.font = font;
+    
+    const textMetrics = ctx.measureText(text);
+    const textWidth = textMetrics.width;
+
+    canvas.height = textWidth + 10;
+    canvas.width = fontSize + 8;
+    
+    ctx.font = font;
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(-90 * Math.PI / 180);
+    ctx.fillText(text, 0, 0);
+
+    // KEMBALIKAN HANYA GAMBAR DAN ALIGNMENT
+    return {
+        image: canvas.toDataURL(),
+        alignment: 'center'
+    };
+}
+
+
+// GANTI FUNGSI LAMA ANDA DENGAN VERSI LENGKAP INI
+function generateLandscapeChecklist() {
+    console.log("Menjalankan generateLandscapeChecklist versi BARU - Arah Rotasi 90 derajat!");
+    // 1. Ambil semua data dari form
+    const data = getFormData();
+    const adminItems = getCheckItems('admin-list');
+    const teknisItems = getCheckItems('teknis-list');
+    const hargaItems = getCheckItems('harga-list');
+    const peserta = data.peserta;
+
+    const C = 'center';
+
+    // ======================================================================
+    // ===>>> BAGIAN KRUSIAL #1: DEFINISI STYLE ROTASI <<<====================
+    // Pastikan objek ini ada dan benar penulisannya.
+    // ======================================================================
+
+    // 2. Definisikan semua header kolom
+    const tableHeader = [
+        { text: 'No', bold: true, alignment: C, fillColor: '#e8e8e8' },
+        { text: 'Nama Peserta', bold: true, alignment: C, fillColor: '#e8e8e8' },
+        
+        // Panggil createRotatedText untuk setiap item
+        ...adminItems.map(item => createRotatedText(item)),
+        ...teknisItems.map(item => createRotatedText(item)),
+        ...hargaItems.map(item => createRotatedText(item)),
+        createRotatedText('Pakta Integritas')
+    ];
+
+    // 3. Definisikan lebar untuk setiap kolom
+    const colWidths = [
+        25,
+        '*',
+        ...Array(adminItems.length).fill('auto'),
+        ...Array(teknisItems.length).fill('auto'),
+        ...Array(hargaItems.length).fill('auto'),
+        'auto' // Pakta Integritas
+    ];
+
+    // 4. Buat baris data untuk setiap peserta
+    const bodyRows = peserta.map((pesertaNama, index) => {
+        const emptyChecklistCols = adminItems.length + teknisItems.length + hargaItems.length + 1;
+        return [
+            { text: index + 1, alignment: C },
+            { text: pesertaNama },
+            ...Array(emptyChecklistCols).fill({ text: ' ' })
+        ];
+    });
+
+    // 5. Satukan semua bagian ke dalam docDefinition
+    const docDefinition = {
+        pageOrientation: 'landscape',
+        pageSize: 'A4',
+        pageMargins: [40, 70, 40, 60],
+        content: [
+            // ... (header judul tidak perlu diubah) ...
+            { text: 'LAMPIRAN', bold: true, alignment: C, fontSize: 13, margin: [0, 0, 0, 4] },
+            { text: 'BERITA ACARA PEMBUKAAN DOKUMEN PENAWARAN', bold: true, alignment: C, fontSize: 13, margin: [0, 0, 0, 4] },
+            { text: data.nama_pekerjaan || '', bold: true, alignment: C, fontSize: 13, margin: [0, 0, 0, 4] },
+            { text: 'Nomor: ' + (data.nomor_pengadaan || ''), alignment: C, fontSize: 11, margin: [0, 0, 0, 20] },
+            {
+                table: {
+                    headerRows: 1,
+                    widths: colWidths,
+                    heights: [30], // Atur tinggi baris header agar cukup untuk teks yang diputar
+                    body: [tableHeader, ...bodyRows]
+                },
+                fontSize: 10
+            },
+            // ... (blok TTD tidak perlu diubah) ...
+             {
+                unbreakable: true,
+                margin: [0, 30, 0, 0], 
+                columns: [
+                    { stack: [{ text: 'Mengetahui,', bold: true, alignment: C }, {text: ' ', margin: [0,60,0,0]}, {text: 'Nama Atasan', bold: true, alignment: C}] },
+                    { stack: [{ text: 'Yang Membuat,', bold: true, alignment: C }, {text: ' ', margin: [0,60,0,0]}, {text: 'Nama Pembuat', bold: true, alignment: C}] }
+                ],
+                columnGap: 20
+            }
+        ],
+         footer: (currentPage, pageCount) => ({
+            text: `Halaman ${currentPage} dari ${pageCount}`,
+            alignment: C, fontSize: 9, margin: [0, 10, 0, 0],
+        }),
+    };
+
+    // 6. Buat dan unduh PDF
+    const nomor = (data.nomor_pengadaan || 'dokumen').replace(/[\\/]/g, '-');
+    pdfMake.createPdf(docDefinition).download(`Checklist_Lampiran_Landscape_${nomor}.pdf`);
+}
+// Tempelkan seluruh fungsi baru ini di akhir file app.js
+
+function testRotate() {
+    console.log("Menjalankan TES ROTASI PALING DASAR.");
+
+    const docDefinition = {
+        content: [
+            {
+                text: 'Dokumen ini hanya untuk menguji fungsi rotasi.',
+                margin: [0, 0, 0, 20]
+            },
+            {
+                table: {
+                    body: [
+                        [ // Baris pertama
+                            {
+                                text: 'Teks ini seharusnya diputar 90 derajat',
+                                rotate: 90, // Tes paling dasar
+                                fillColor: '#FFFF00' // Warna kuning agar terlihat
+                            }
+                        ]
+                    ]
+                }
+            }
+        ]
+    };
+
+    pdfMake.createPdf(docDefinition).download('Tes_Rotasi.pdf');
+}
+// =====================================================================
+// ===>>> TAMBAHKAN SELURUH FUNGSI BARU INI DI FILE APP.JS ANDA <<<===
+// =====================================================================
+
+function generatePengumuman() {
+    // 1. PENGAMBILAN DATA
+    const elMetode = document.getElementById('metode_pengadaan_pengumuman');
+    const metode = elMetode ? elMetode.value : 'Tender/Seleksi';
+    
+    const elNoUrut = document.getElementById('nomor_urut_pengumuman');
+    const noUrut = elNoUrut ? elNoUrut.value : '01'; // Default ke 01 jika kosong
+    
+    const elNoPengadaan = document.getElementById('nomor_pengadaan_pengumuman');
+    const noPengadaan = elNoPengadaan ? elNoPengadaan.value : '...';
+    
+    const elNamaPekerjaan = document.getElementById('nama_pekerjaan_pengumuman');
+    const namaPekerjaan = elNamaPekerjaan ? elNamaPekerjaan.value : '...';
+    
+    // --- LOGIKA BARU UNTUK FORMAT NOMOR SURAT ---
+    const elTglBuka = document.getElementById('tanggal_buka');
+    const tglBukaValue = elTglBuka ? elTglBuka.value : '';
+    
+    let tglBukaLengkap = '...'; // Untuk teks "Jakarta, [tanggal]"
+    let formatBulanTahun = 'MMYYYY'; // Untuk nomor surat
+
+    if (tglBukaValue) {
+        const dateObj = new Date(tglBukaValue);
+        
+        // Format untuk teks di bawah: "29 April 2026"
+        tglBukaLengkap = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        
+        // Ekstrak bulan (0-11) dan tahun untuk format "MMYYYY"
+        // getMonth() mengembalikan 0 untuk Januari, jadi harus ditambah 1
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Menambahkan '0' di depan jika < 10 (misal: '04')
+        const year = dateObj.getFullYear(); // Mendapatkan tahun 4 digit (misal: '2026')
+        formatBulanTahun = `${month}${year}`; // Menggabungkan menjadi "042026"
+    }
+
+    // Membentuk string nomor surat akhir: PENG-01/NO-PENGADAAN/042026
+    const nomorSuratLengkap = `PENG-${noUrut}/${noPengadaan}/${formatBulanTahun}`;
+    // --------------------------------------------
+
+    // (Logika textarea tetap sama)
+    const elPersyaratan = document.getElementById('persyaratan-peserta-list');
+    const persyaratan = elPersyaratan && elPersyaratan.value.trim() !== '' 
+        ? elPersyaratan.value.split('\n').filter(item => item.trim() !== '') 
+        : [];
+
+    const elKetentuan = document.getElementById('ketentuan-pendaftaran-list');
+    const ketentuan = elKetentuan && elKetentuan.value.trim() !== '' 
+        ? elKetentuan.value.split('\n').filter(item => item.trim() !== '') 
+        : [];
+
+
+    // 2. DEFINISI DOKUMEN PDF
+    const docDefinition = {
+        pageSize: 'A4',
+        pageMargins: [70, 70, 70, 70], 
+        defaultStyle: { 
+            font: 'Roboto', 
+            fontSize: 11, 
+            lineHeight: 1.15,
+            alignment: 'justify' // Membuat seluruh paragraf rata kiri-kanan
+        },
+        content: [
+            // Header Utama
+            {
+                text: `PENGUMUMAN ${metode.toUpperCase()}`,
+                style: 'header',
+                alignment: 'center',
+                bold: true,
+                fontSize: 12
+            },
+            // ===>>> UBAH DI SINI: Sub-header Nomor <<<===
+            {
+                text: `Nomor: ${nomorSuratLengkap}`, 
+                alignment: 'center',
+                margin: [0, 2, 0, 20]
+            },
+            // Paragraf Pertama
+            {
+                text: [
+                    'Kantor Pusat BPJS Ketenagakerjaan akan melaksanakan ',
+                    { text: metode, bold: true },
+                    ' pekerjaan ',
+                    { text: namaPekerjaan, bold: true },
+                    ', dengan ketentuan dan persyaratan sebagai berikut:'
+                ],
+                alignment: 'justify',
+                margin: [0, 0, 0, 15]
+            },
+            
+            // Paragraf Kedua: Persyaratan Peserta
+            { text: 'Persyaratan Peserta:', bold: true, margin: [0, 0, 0, 5] },
+            { ol: persyaratan.length > 0 ? persyaratan : ['-'], alignment: 'justify', margin: [15, 0, 0, 15] },
+
+            // Paragraf Ketiga: Ketentuan Pendaftaran
+            { text: 'Ketentuan Pendaftaran:', bold: true, margin: [0, 0, 0, 5] },
+            { ol: ketentuan.length > 0 ? ketentuan : ['-'], alignment: 'justify', margin: [15, 0, 0, 15] },
+
+            // Paragraf Keempat: Blok Tanda Tangan
+            {
+                unbreakable: true,
+                stack: [
+                    // ===>>> UBAH DI SINI: Gunakan tglBukaLengkap <<<===
+                    { text: `Jakarta, ${tglBukaLengkap}`, alignment: 'center', margin: [0, 30, 0, 0] },
+                    { text: 'ttd.', alignment: 'center', margin: [0, 20, 0, 20] },
+                    { text: 'Asdep Pelaksanaan Pengadaan', alignment: 'center', bold: true }
+                ]
+            }
+        ]
+    };
+
+    // 3. BUAT DAN UNDUH PDF
+    // Gunakan nomor surat yang baru diformat sebagai nama file (ganti garis miring dengan strip agar aman)
+    const namaFileAman = nomorSuratLengkap.replace(/[\\/]/g, '-'); 
+    pdfMake.createPdf(docDefinition).download(`Pengumuman_${metode}_${namaFileAman}.pdf`);
+}
+

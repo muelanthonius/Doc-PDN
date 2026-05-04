@@ -1,0 +1,61 @@
+<!-- GANTI SELURUH BLOK form-pengumuman DENGAN INI -->
+  <div class="section hidden" id="form-pengumuman">
+    <div class="section-header">
+      <span class="section-title">Data Spesifik Pengumuman</span>
+    </div>
+    <div class="section-body">
+      <!-- BARIS 1: NAMA PEKERJAAN -->
+      <div class="form-row">
+        <div class="form-col" style="width: 100%;"> 
+          <label for="nama_pekerjaan_pengumuman">Nama Pekerjaan</label>
+          <input type="text" id="nama_pekerjaan_pengumuman" name="nama_pekerjaan_pengumuman" placeholder="Ketik nama pekerjaan..." style="width: 100%; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <!-- BARIS 2: GRID NOMOR DAN METODE -->
+      <div class="form-row" style="grid-template-columns:0.5fr 1fr 1fr;">
+        <div class="field">
+          <label>Nomor Urut</label>
+          <select id="nomor_urut_pengumuman">
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nomor Pengadaan</label>
+          <input type="text" id="nomor_pengadaan_pengumuman" placeholder="Nomor pengadaan">
+        </div>
+        <div class="field">
+          <label>Metode Pengadaan</label>
+          <select id="metode_pengadaan_pengumuman">
+            <option value="Tender">Tender</option>
+            <option value="Seleksi">Seleksi</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- BARIS 3: TANGGAL -->
+      <div class="form-row">
+        <div class="form-col">
+          <label for="tanggal_buka">Tanggal Buka</label>
+          <input type="date" id="tanggal_buka" name="tanggal_buka">
+        </div>
+        <div class="form-col">
+          <div style="height: 48px;"></div> 
+        </div>
+      </div>
+
+      <!-- BARIS 4: TEXTAREA PERSYARATAN & KETENTUAN -->
+      <div class="form-row">
+        <div class="form-col">
+          <label for="persyaratan-peserta-list">Persyaratan Peserta (satu per baris)</label>
+          <textarea id="persyaratan-peserta-list" rows="5" placeholder="Ketik setiap persyaratan di baris baru..."></textarea>
+        </div>
+        <div class="form-col">
+          <label for="ketentuan-pendaftaran-list">Ketentuan Pendaftaran (satu per baris)</label>
+          <textarea id="ketentuan-pendaftaran-list" rows="5" placeholder="Ketik setiap ketentuan di baris baru..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>

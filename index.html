@@ -11,228 +11,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 </head>
 <body>
-
-<!-- ══════════════════════════════════════════════════════
-     PREVIEW TEMPLATES — diisi oleh app.js
-     Ubah teks & struktur di sini, styling di style.css
-     ══════════════════════════════════════════════════════ -->
-
-<!-- Template: BA Pembukaan Dokumen -->
-<template id="tmpl-pembukaan">
-  <div class="preview-doc">
-
-    <h2 class="doc-judul">BERITA ACARA PEMBUKAAN DOKUMEN PENAWARAN</h2>
-    <p class="doc-subjudul"><span data-field="nama_pekerjaan"></span></p>
-    <p class="doc-nomor">Nomor: BA-<span data-field="nomor_pengadaan"></span></p>
-
-    <p class="doc-para1">
-      Pada hari ini, <span data-field="hari"></span>,
-      tanggal <span data-field="tanggal"></span>,
-      pukul <span data-field="jam"></span>,
-      bertempat di <span data-field="lokasi"></span>,
-      telah dilaksanakan Pembukaan Dokumen Penawaran.
-    </p>
-
-    <p class="doc-para2">
-      Bidang Pelaksanaan Pengadaan BPJS Ketenagakerjaan telah mengadakan kegiatan
-      pemasukan dan pembukaan dokumen penawaran pekerjaan
-      <span data-field="nama_pekerjaan"></span>
-      yang diproses dengan metode
-      <span data-field="metode"></span>.
-    </p>
-
-    <ol class="doc-body-list">
-      <li>
-        <span class="list-label">1.</span>
-        <span class="list-content">
-          Pelaksanaan pemasukan dan pembukaan dokumen penawaran dihadiri oleh:
-          <ol class="sub-list">
-            <li>
-              <span class="list-label">1.1.</span>
-              <span class="list-content">Bidang Pelaksanaan Pengadaan</span>
-            </li>
-            <li>
-              <span class="list-label">1.2.</span>
-              <span class="list-content">
-                Calon penyedia yang menyampaikan dokumen penawaran pada aplikasi
-                Pengadaan Barang/Jasa sebanyak
-                <span data-field="jumlah_peserta"></span> perusahaan, yaitu:
-                <ol class="peserta-ol" data-slot="peserta"></ol>
-              </span>
-            </li>
-            <li>
-              <span class="list-label">1.3.</span>
-              <span class="list-content">
-                Calon penyedia yang menghadiri kegiatan pemasukan dan pembukaan
-                dokumen penawaran sebanyak
-                <span class="fill-manual">______________</span> perusahaan.
-              </span>
-            </li>
-            <li>
-              <span class="list-label">1.4.</span>
-              <span class="list-content">Daftar hadir sebagaimana terlampir.</span>
-            </li>
-          </ol>
-        </span>
-      </li>
-      <li>
-        <span class="list-label">2.</span>
-        <span class="list-content">
-          Pembukaan dokumen penawaran dilakukan oleh personil Bidang Pelaksanaan
-          Pengadaan dan wakil dari Calon Penyedia yang hadir sebagaimana dimaksud
-          pada angka 1.3.
-        </span>
-      </li>
-      <li>
-        <span class="list-label">3.</span>
-        <span class="list-content">
-          Hasil pembukaan dokumen penawaran sebagaimana tertuang dalam lampiran
-          Berita Acara ini.
-        </span>
-      </li>
-    </ol>
-
-    <p class="doc-penutup">
-      Demikian Berita Acara ini dibuat dengan sebenarnya untuk dipergunakan
-      sebagaimana mestinya.
-    </p>
-
-    <div class="doc-ttd">
-      <div class="ttd-col">
-        <p class="ttd-label">Mengetahui,</p>
-        <div class="ttd-space"></div>
-        <p class="ttd-name">Jessica Puspadayasari</p>
-        <p class="ttd-jabatan">Asdep Pelaksanaan Pengadaan</p>
-      </div>
-      <div class="ttd-col">
-        <p class="ttd-label">Yang Membuat,</p>
-        <div class="ttd-space"></div>
-        <p class="ttd-name" data-field="pelaksana_nama"></p>
-        <p class="ttd-jabatan" data-field="pelaksana_jabatan"></p>
-      </div>
-    </div>
-
-  </div>
-</template>
-
-<!-- Template: BA Aanwijzing -->
-<template id="tmpl-aanwijzing">
-  <div class="preview-doc">
-
-    <h2 class="doc-judul">BERITA ACARA AANWIJZING</h2>
-    <p class="doc-subjudul"><span data-field="nama_pekerjaan"></span></p>
-    <p class="doc-nomor">Nomor: <span data-field="nomor_pengadaan"></span></p>
-
-    <p class="doc-para1">
-      Pada hari ini, <span data-field="hari"></span>,
-      tanggal <span data-field="tanggal"></span>,
-      pukul <span data-field="jam"></span>,
-      bertempat di <span data-field="lokasi"></span>,
-      telah dilaksanakan Rapat Aanwijzing (Pemberian Penjelasan) untuk pekerjaan:
-    </p>
-
-    <table class="doc-table-info">
-      <tr>
-        <td>Nama Pekerjaan</td><td>:</td>
-        <td data-field="nama_pekerjaan"></td>
-      </tr>
-      <tr>
-        <td>Nomor Pengadaan</td><td>:</td>
-        <td data-field="nomor_pengadaan"></td>
-      </tr>
-      <tr>
-        <td>Metode Pengadaan</td><td>:</td>
-        <td data-field="metode"></td>
-      </tr>
-    </table>
-
-    <p class="doc-section-title">PESERTA YANG HADIR</p>
-    <ol class="peserta-ol" data-slot="peserta"></ol>
-
-    <div data-slot="qa"></div>
-    <div data-slot="perubahan"></div>
-
-    <p class="doc-penutup">
-      Demikian Berita Acara ini dibuat dengan sebenarnya untuk dipergunakan
-      sebagaimana mestinya.
-    </p>
-
-    <div class="doc-ttd">
-      <div class="ttd-col">
-        <p class="ttd-label">Mengetahui,</p>
-        <div class="ttd-space"></div>
-        <p class="ttd-name">Jessica Puspadayasari</p>
-        <p class="ttd-jabatan">Asdep Pelaksanaan Pengadaan</p>
-      </div>
-      <div class="ttd-col">
-        <p class="ttd-label">Yang Membuat,</p>
-        <div class="ttd-space"></div>
-        <p class="ttd-name" data-field="pelaksana_nama"></p>
-        <p class="ttd-jabatan" data-field="pelaksana_jabatan"></p>
-      </div>
-    </div>
-
-  </div>
-</template>
-
-<!-- Template: Item peserta -->
-<template id="tmpl-peserta-item">
-  <li class="peserta-item">
-    <span class="list-label" data-field="nomor"></span>
-    <span class="list-content" data-field="nama"></span>
-  </li>
-</template>
-
-<!-- Template: Blok Q&A -->
-<template id="tmpl-qa-block">
-  <div class="qa-block">
-    <p>
-      <span class="qa-num" data-field="nomor"></span>.
-      <strong>Pertanyaan:</strong>
-      <span data-field="pertanyaan"></span>
-    </p>
-    <p class="qa-jawaban">
-      <strong>Jawaban:</strong>
-      <span data-field="jawaban"></span>
-    </p>
-  </div>
-</template>
-
-<!-- Template: Tabel perubahan -->
-<template id="tmpl-perubahan-table">
-  <div class="perubahan-wrap">
-    <p class="doc-section-title">PERUBAHAN DOKUMEN</p>
-    <table class="perubahan-table">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Sebelum</th>
-          <th>Sesudah</th>
-          <th>Diusulkan Oleh</th>
-          <th>Pertimbangan</th>
-        </tr>
-      </thead>
-      <tbody data-slot="perubahan-rows"></tbody>
-    </table>
-  </div>
-</template>
-
-<!-- Template: Row perubahan -->
-<template id="tmpl-perubahan-row">
-  <tr>
-    <td data-field="nomor"></td>
-    <td data-field="sebelum"></td>
-    <td data-field="sesudah"></td>
-    <td data-field="diusulkan"></td>
-    <td data-field="pertimbangan"></td>
-  </tr>
-</template>
-
-
 <!-- ══════════════════════════════════════════════════════
      APP UI
      ══════════════════════════════════════════════════════ -->
-
 <header>
   <div class="logo">BA</div>
   <div>
@@ -242,7 +23,6 @@
 </header>
 
 <div class="container">
-
   <!-- Jenis Dokumen -->
   <div class="section">
     <div class="section-header">
@@ -268,12 +48,17 @@
           <div class="label">Tipe 02</div>
           <div class="title">Berita Acara Pembukaan Dokumen</div>
         </label>
+        <label class="type-card" id="card-pengumuman">
+          <input type="radio" name="jenis" value="pengumuman" onchange="switchType(this.value)">
+          <div class="label">Tipe 03</div>
+          <div class="title">Pengumuman Tender/Seleksi</div>
+        </label>
       </div>
     </div>
   </div>
 
   <!-- Data Umum Pekerjaan -->
-  <div class="section">
+  <div class="section" id="section-data-umum">
     <div class="section-header">
       <span class="section-title">Data Umum Pekerjaan</span>
     </div>
@@ -331,7 +116,7 @@
   </div>
 
   <!-- Nama Peserta -->
-  <div class="section">
+  <div class="section" id="section-peserta">
     <div class="section-header">
       <span class="section-title">Nama Peserta</span>
     </div>
@@ -395,6 +180,68 @@
     <div class="section-body">
       <div id="perubahan-list"></div>
       <button class="btn-add" onclick="addPerubahan()">+ Tambah Perubahan</button>
+    </div>
+  </div>
+
+  <!-- GANTI SELURUH BLOK form-pengumuman DENGAN INI -->
+  <div class="section hidden" id="form-pengumuman">
+    <div class="section-header">
+      <span class="section-title">Data Spesifik Pengumuman</span>
+    </div>
+    <div class="section-body">
+      <!-- BARIS 1: NAMA PEKERJAAN -->
+      <div class="form-row full">
+        <div class="form-col" style="width: 100%;"> 
+          <label for="nama_pekerjaan_pengumuman">Nama Pekerjaan</label>
+          <input type="text" id="nama_pekerjaan_pengumuman" name="nama_pekerjaan_pengumuman" placeholder="Ketik nama pekerjaan..." style="width: 100%; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <!-- BARIS 2: GRID NOMOR DAN METODE -->
+      <div class="form-row" style="grid-template-columns:0.5fr 1fr 1fr;">
+        <div class="field">
+          <label>Nomor Urut</label>
+          <select id="nomor_urut_pengumuman">
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nomor Pengadaan</label>
+          <input type="text" id="nomor_pengadaan_pengumuman" placeholder="Nomor pengadaan">
+        </div>
+        <div class="field">
+          <label>Metode Pengadaan</label>
+          <select id="metode_pengadaan_pengumuman">
+            <option value="Tender">Tender</option>
+            <option value="Seleksi">Seleksi</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- BARIS 3: TANGGAL -->
+      <div class="form-row">
+        <div class="form-col">
+          <label for="tanggal_buka">Tanggal Buka</label>
+          <input type="date" id="tanggal_buka" name="tanggal_buka">
+        </div>
+        <div class="form-col">
+          <div style="height: 48px;"></div> 
+        </div>
+      </div>
+
+      <!-- BARIS 4: TEXTAREA PERSYARATAN & KETENTUAN -->
+      <div class="form-row">
+        <div class="form-col">
+          <label for="persyaratan-peserta-list">Persyaratan Peserta (satu per baris)</label>
+          <textarea id="persyaratan-peserta-list" rows="5" placeholder="Ketik setiap persyaratan di baris baru..."></textarea>
+        </div>
+        <div class="form-col">
+          <label for="ketentuan-pendaftaran-list">Ketentuan Pendaftaran (satu per baris)</label>
+          <textarea id="ketentuan-pendaftaran-list" rows="5" placeholder="Ketik setiap ketentuan di baris baru..."></textarea>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -522,11 +369,18 @@
     </div>
   </div>
 
-  <!-- Action Buttons -->
+    <!-- Action Buttons -->
   <div class="generate-wrap">
+    <!-- Tombol ini muncul khusus untuk Pembukaan -->
     <button class="btn-checklist hidden" id="btn-checklist" onclick="toggleChecklist()">&#9776; Checklist Lampiran</button>
-    <button class="btn-generate" onclick="generatePDF()">&#8595; Unduh PDF</button>
+    
+    <!-- Tombol Unduh Utama (Untuk Aanwijzing & Pembukaan) -->
+    <button class="btn-generate" id="btn-unduh-utama" onclick="generatePDF()">&#8595; Unduh PDF</button>   
+
+    <!-- TAMBAHAN: Tombol Unduh Khusus Pengumuman (Awalnya disembunyikan) -->
+    <button class="btn-generate hidden" id="btn-unduh-pengumuman" onclick="generatePengumuman()">&#8595; Unduh Pengumuman</button>
   </div>
+
 
   <!-- Checklist Lampiran (Pembukaan only, toggle) -->
   <div class="section hidden" id="section-checklist" style="margin-top:20px;">
@@ -559,22 +413,21 @@
         </div>
         <div>
           <div class="section-sub-header" style="margin-bottom:10px;">Dokumen Harga</div>
-          <div id="harga-list">
-            <div class="list-item">
-              <span class="list-num">1.</span>
-              <input type="text" placeholder="Dokumen harga...">
-              <button class="btn-icon" onclick="removeCheckItem(this)" title="Hapus">&#215;</button>
+            <div id="harga-list">
+              <div class="list-item">
+                <span class="list-num">1.</span>
+                <input type="text" placeholder="Dokumen harga...">
+                <button class="btn-icon" onclick="removeCheckItem(this)" title="Hapus">&#215;</button>
+              </div>
             </div>
+            <button class="btn-add" onclick="addCheckItem('harga-list')">+ Tambah</button>
           </div>
-          <button class="btn-add" onclick="addCheckItem('harga-list')">+ Tambah</button>
         </div>
-      </div>
       <div class="generate-wrap" style="margin-top:16px;">
-        <button class="btn-generate" onclick="generateChecklist()">&#8595; Unduh Checklist</button>
+        <button class="btn-generate" onclick="generateChecklist()">&#8595; Unduh Checklist Portrait</button>
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- Preview Modal -->

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tes Rotasi PDF Minimalis</title>
+</head>
+<body>
+
+    <h1>Halaman Tes Minimalis</h1>
+    <p>Halaman ini hanya memuat kode yang paling penting untuk menguji fungsi rotasi PDF.</p>
+    <hr>
+
+    <!-- 1. AREA INPUT YANG DIBUTUHKAN OLEH APP.JS -->
+    <div>
+        <h3>Peserta (satu per baris)</h3>
+        <textarea id="peserta-list" rows="4" cols="50">PT. Peserta A
+CV. Peserta B</textarea>
+    </div>
+
+    <div>
+        <h3>Dokumen Administrasi (satu per baris)</h3>
+        <textarea id="admin-list" rows="4" cols="50">Admin Dokumen 1
+Admin Dokumen 2</textarea>
+    </div>
+
+    <div>
+        <h3>Dokumen Teknis (satu per baris)</h3>
+        <textarea id="teknis-list" rows="4" cols="50">Teknis Dokumen 1
+Teknis Dokumen 2</textarea>
+    </div>
+
+    <div>
+        <h3>Dokumen Harga (satu per baris)</h3>
+        <textarea id="harga-list" rows="4" cols="50">Harga Dokumen 1
+Harga Dokumen 2</textarea>
+    </div>
+    
+    <!-- Input lain yang mungkin dibutuhkan oleh getFormData(), bisa ditambahkan jika ada error -->
+    <input type="hidden" id="nama_pekerjaan" value="Pekerjaan Tes">
+    <input type="hidden" id="nomor_pengadaan" value="BA-TES-01">
+
+
+    <hr>
+
+    <!-- 2. TOMBOL UNTUK MEMANGGIL FUNGSI -->
+    <div style="margin-top:16px;">
+        <button onclick="generateChecklist()">Unduh Portrait</button>
+        <button onclick="generateLandscapeChecklist()">Unduh Landscape</button>
+        <button onclick="testRotate()">Tes Rotasi Sederhana</button>
+    </div>
+
+
+    <!-- 3. SCRIPT WAJIB (letakkan di paling bawah) -->
+
+    <!-- Pustaka pdfmake versi baru (tanpa integrity) -->
+    <script src="pdfmake.min.js"></script>
+    <script src="vfs_fonts.js"></script>
+
+    <!-- File JavaScript Anda -->
+    <script src="app.js"></script>
+
+</body>
+</html>

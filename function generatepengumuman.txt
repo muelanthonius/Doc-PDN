@@ -1,0 +1,99 @@
+function generatePengumuman() {
+    // 1. AMBIL DATA MENGGUNAKAN ID YANG BARU
+    const metode = document.getElementById('metode_pengadaan_pengumuman').value || 'Tender/Seleksi';
+    const noUrut = document.getElementById('nomor_urut_pengumuman').value || '...';
+    const noPengadaan = document.getElementById('nomor_pengadaan_pengumuman').value || '...';
+    const namaPekerjaan = document.getElementById('nama_pekerjaan_pengumuman').value || '...';
+    
+    const tglBukaValue = document.getElementById('tanggal_buka').value;
+    const tglBuka = tglBukaValue ? new Date(tglBukaValue).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '...';
+
+    const persyaratan = getCheckItems('persyaratan-peserta-list');
+    const ketentuan = getCheckItems('ketentuan-pendaftaran-list');
+
+    // 2. DEFINISI DOKUMEN PDF
+    const docDefinition = {
+        pageSize: 'A4',
+        pageMargins: [70, 70, 70, 70],
+        defaultStyle: { font: 'Roboto', fontSize: 11, lineHeight: 1.15 },
+        content: [
+            // Header Utama
+            {
+                text: `PENGUMUMAN ${metode.toUpperCase()}`,
+                style: 'header',
+                alignment: 'center',
+                bold: true,
+                fontSize: 12
+            },
+            // Sub-header Nomor (Gunakan variabel noUrut dan noPengadaan yang baru)
+            {
+                text: `Nomor: ${noUrut}/PENG/${noPengadaan}`, 
+                alignment: 'center',
+                margin: [0, 2, 0, 20]
+            },
+            
+            // Paragraf Pertama (Gunakan variabel namaPekerjaan yang baru)
+            {
+                text: [
+                    'Kantor Pusat BPJS Ketenagakerjaan akan melaksanakan ',
+                    { text: metode, bold: true },
+                    ' pekerjaan ',
+                    { text: namaPekerjaan, bold: true },
+                    ', dengan ketentuan dan persyaratan sebagai berikut:'
+                ],
+                alignment: 'justify',
+                margin: [0, 0, 0, 15]
+            },
+
+            // Paragraf Kedua: Persyaratan Peserta
+            {
+                text: 'Persyaratan Peserta:',
+                bold: true,
+                margin: [0, 0, 0, 5]
+            },
+            {
+                // Membuat daftar bernomor (ordered list)
+                ol: persyaratan.length > 0 ? persyaratan : ['-'],
+                margin: [15, 0, 0, 15] // Indentasi ke kiri
+            },
+
+            // Paragraf Ketiga: Ketentuan Pendaftaran
+            {
+                text: 'Ketentuan Pendaftaran:',
+                bold: true,
+                margin: [0, 0, 0, 5]
+            },
+            {
+                ol: ketentuan.length > 0 ? ketentuan : ['-'],
+                margin: [15, 0, 0, 15]
+            },
+
+            // Paragraf Keempat: Blok Tanda Tangan
+            {
+                // Gunakan 'unbreakable: true' agar blok ini tidak terpisah antar halaman
+                unbreakable: true,
+                stack: [
+                    {
+                        text: `Jakarta, ${tglBuka}`,
+                        alignment: 'center',
+                        margin: [0, 30, 0, 0] // Jarak dari atas
+                    },
+                    {
+                        text: 'teks ttd. saja',
+                        alignment: 'center',
+                        margin: [0, 60, 0, 0] // Spasi untuk TTD
+                    },
+                    {
+                        text: 'Asdep Pelaksanaan Pengadaan',
+                        alignment: 'center',
+                        bold: true,
+                    }
+                ]
+            }
+        ]
+    };
+
+    // 3. Buat dan unduh PDF
+    const nomorFile = (data.nomor_pengadaan || 'dokumen').replace(/[\\/]/g, '-');
+    pdfMake.createPdf(docDefinition).download(`Pengumuman_${metode}_${nomorFile}.pdf`);
+}
