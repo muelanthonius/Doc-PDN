@@ -146,6 +146,21 @@ function switchType(val) {
   const isPembukaan = val === 'pembukaan';
   const isPengumuman = val === 'pengumuman';
 
+  // Kontrol visibilitas bagian khusus Aanwijzing
+  const sectionQa = document.getElementById('section-qa');
+  const sectionJadwal = document.getElementById('section-jadwal');
+  const sectionPerubahan = document.getElementById('section-perubahan');
+
+  if (sectionQa) {
+    sectionQa.classList.toggle('hidden', !isAanwijzing);
+  }
+  if (sectionJadwal) {
+    sectionJadwal.classList.toggle('hidden', !isAanwijzing);
+  }
+  if (sectionPerubahan) {
+    sectionPerubahan.classList.toggle('hidden', !isAanwijzing);
+  }
+
   // 2. Kontrol Visibilitas Form Utama
   const formAanwijzing = document.getElementById('form-aanwijzing');
   const formPembukaan = document.getElementById('form-pembukaan');
@@ -749,7 +764,7 @@ function generatePDF() {
   const fH = 13;          // font size judul
 
   // ── Margin halaman: [kiri, atas, kanan, bawah] dalam pt (1 mm ≈ 2.835 pt) ──
-  const margin = [70, 70, 56, 56]; // ~25mm kiri, 25mm atas, 20mm kanan, 20mm bawah
+  const margin = [70, 55, 70, 55]; // ~25mm kiri, 25mm atas, 20mm kanan, 20mm bawah
 
   // ── Helper: paragraph justify ──
   function para(text, opts = {}) {
@@ -877,7 +892,7 @@ function generatePDF() {
     ));
     content.push(listItem('3.',
       'Hasil pembukaan dokumen penawaran sebagaimana tertuang dalam lampiran Berita Acara ini.',
-      0,20
+      0,0
     ));
 
   } else {
